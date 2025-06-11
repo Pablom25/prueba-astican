@@ -1,20 +1,21 @@
 import pandas as pd
 
+
 def leer_datos():
     # Aquí lógica para leer los datos desde un archivo o base de datos
     proyectos = pd.DataFrame({       
         'eslora': [120, 100],
         'manga': [18, 15]}, 
-        index=['PRO-1', 'PRO-2'])
+        index=['PRO1', 'PRO2'])
 
     periodos = pd.DataFrame({
         'tipo_desc': ['FLOTE', 'FLOTE'],
         'fecha_inicio': ['2025-08-08', '2025-08-10'],
         'fecha_fin': ['2025-08-20', '2025-08-16'],
-        'proyecto_id': ['PRO-1', 'PRO-2'],
+        'proyecto_id': ['PRO1', 'PRO2'],
         'periodo_id': [0, 0]})
 
-    periodos.index = periodos['proyecto_id'] + '-' + periodos['periodo_id'].astype(str)
+    periodos.index = periodos['proyecto_id'] + '_' + periodos['periodo_id'].astype(str)
 
     muelles = pd.DataFrame({
         'longitud': [130, 110],
