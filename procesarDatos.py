@@ -1,6 +1,6 @@
 import pandas as pd
 
-def preprocesar_datos(proyectos, periodos, muelles, fecha_inicial):
+def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, fecha_inicial: pd.Timestamp) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list]:
     """Preprocesa los datos de proyectos, periodos y muelles para su uso en la optimización.
 
     Parameters

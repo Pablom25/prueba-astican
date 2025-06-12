@@ -1,7 +1,7 @@
 import pandas as pd
 from pulp import *
 
-def definir_variables(proyectos, periodos, muelles):
+def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame) -> tuple[dict, dict, dict, dict]:
     """Define las variables de decisión del problema de optimización.
 
     Parameters
@@ -45,7 +45,7 @@ def definir_variables(proyectos, periodos, muelles):
     return x, y, dias_vars, locs_vars
 
 
-def definir_funcion_objetivo(x):
+def definir_funcion_objetivo(x: dict) -> LpAffineExpression:
     """Define la función objetivo del problema de optimización.
 
     Parameters
@@ -63,7 +63,7 @@ def definir_funcion_objetivo(x):
     return objetivo
 
 
-def definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, proyectos):
+def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_vars: dict, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -125,7 +125,7 @@ def definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, p
     return restricciones
 
 
-def resolver_problema(objetivo, restricciones):
+def resolver_problema(objetivo: LpAffineExpression, restricciones: dict) -> LpProblem:
     """Resuelve el problema de optimización utilizando PuLP.
 
     Parameters
@@ -168,7 +168,7 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
                         break
         print(row)
 
-def crear_dataframe_resultados(x, dias_vars, locs_vars, periodos):
+def crear_dataframe_resultados(x: dict, dias_vars: dict, locs_vars: dict, periodos: pd.DataFrame) -> pd.DataFrame:
     """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
     Parameters

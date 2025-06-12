@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def leer_datos():
+def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp]:
     """Crea DataFrames con los datos de los proyectos, periodos y muelles; y la fecha inicial.
 
     Returns
