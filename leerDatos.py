@@ -39,7 +39,7 @@ def leer_datos():
         'ancho': [20, 20],
         'nombre': ['SUR', 'NORTE']})
 
-    muelles.set_index('muelle_id', inplace=True)
+    muelles.set_index('nombre', inplace=True)
 
     fecha_inicial = periodos['fecha_inicio'].min()
 
