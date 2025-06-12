@@ -31,6 +31,8 @@ def leer_datos():
         'proyecto_id': ['PRO1', 'PRO2'],
         'periodo_id': [0, 0]})
     
+    periodos['fecha_inicio'] = pd.to_datetime(periodos['fecha_inicio'])
+    periodos['fecha_fin'] = pd.to_datetime(periodos['fecha_fin'])
     periodos['id_proyecto_reparacion'] = periodos['proyecto_id'] + '_' + periodos['periodo_id'].astype(str)
     periodos.set_index('id_proyecto_reparacion', inplace=True)
 
