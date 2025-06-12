@@ -1,5 +1,5 @@
 import pandas as pd
-from pulp import *
+import pulp
 
 def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame) -> tuple[dict, dict, dict, dict]:
     """Define las variables de decisión del problema de optimización.
@@ -34,18 +34,18 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     locs_vars = periodos['locs'].to_dict()
     dias_vars = periodos['dias'].to_dict()
 
-    x = {(p, d, loc): LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
+    x = {(p, d, loc): pulp.LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
          for p in periodos.index
          for d in dias_vars[p]
          for loc in locs_vars[p]}
     
-    y = {p: LpVariable(f"y_{p}", p, cat='Binary')
+    y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
          for p in periodos.index}
     
     return x, y, dias_vars, locs_vars
 
 
-def definir_funcion_objetivo(x: dict) -> LpAffineExpression:
+def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
     """Define la función objetivo del problema de optimización.
 
     Parameters
@@ -59,7 +59,7 @@ def definir_funcion_objetivo(x: dict) -> LpAffineExpression:
         Expresión lineal que representa la función objetivo a maximizar.
     """
 
-    objetivo = lpSum(x.values())
+    objetivo = pulp.lpSum(x.values())
     return objetivo
 
 
@@ -96,7 +96,7 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
     # Cada día del periodo debe estar asignado exactamente a un muelle si y[p] = 1 y a ninguno si y[p] = 0
     restricciones.update(
         {
-            f"Un_Muelle_Por_Dia_{p}_{d}": (lpSum(x[(p, d, loc)] for loc in locs_vars[p]) == y[p], f"Un_Muelle_Por_Dia_{p}_{d}")
+            f"Asignacion_{p}_{d}": (pulp.lpSum(x[(p, d, loc)] for loc in locs_vars[p]) == y[p], f"Asignacion{p}_{d}")
             for p in periodos.index
             for d in dias_vars[p]
         }
@@ -105,7 +105,7 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
     # Los barcos en el mismo muelle no pueden exceder la longitud del muelle
     restricciones.update(
         {
-            f"Longitud_Muelle_{d}_{loc}": (lpSum(x[(p, d, loc)] * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index if (p, d, loc) in x.keys()) <= muelles.loc[loc, 'longitud'], 
+            f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(x.get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) <= muelles.loc[loc, 'longitud'], 
             f"Longitud_Muelle_{d}_{loc}")
             for loc in muelles.index
             for d in dias
@@ -115,7 +115,7 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
     return restricciones
 
 
-def resolver_problema(objetivo: LpAffineExpression, restricciones: dict) -> LpProblem:
+def resolver_problema(objetivo: pulp.LpAffineExpression, restricciones: dict) -> pulp.LpProblem:
     """Resuelve el problema de optimización utilizando PuLP.
 
     Parameters
@@ -131,7 +131,7 @@ def resolver_problema(objetivo: LpAffineExpression, restricciones: dict) -> LpPr
         Objeto LpProblem que representa el problema de optimización.
     """
 
-    prob = LpProblem("Asignación de Periodos a Muelles", LpMaximize)
+    prob = pulp.LpProblem("Asignación de Periodos a Muelles", pulp.LpMaximize)
     prob += objetivo
 
     for c in restricciones.values():
@@ -144,7 +144,7 @@ def resolver_problema(objetivo: LpAffineExpression, restricciones: dict) -> LpPr
 
 def imprimir_asignacion(prob, x, dias, periodos, muelles):
     
-    print("Estado de la solución:", LpStatus[prob.status])
+    print("Estado de la solución:", pulp.LpStatus[prob.status])
     print("\nAsignación de Proyectos a Muelles:\n")
     print("Día\t", "\t".join(muelles.index))
 
