@@ -37,7 +37,7 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     x = {(p, d, loc): LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
          for p in periodos.index
          for d in dias_vars[p]
-         for loc in locs_vars[p] if loc}
+         for loc in locs_vars[p]}
     
     y = {p: LpVariable(f"y_{p}", p, cat='Binary')
          for p in periodos.index}
