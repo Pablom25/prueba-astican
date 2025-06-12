@@ -24,18 +24,15 @@ def definir_variables(proyectos, periodos, muelles):
     locs_vars : dict
         Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
     """
-
-    dias_vars = {}
-    locs_vars = {}
     
     # Definir variables para cada periodo solo en los días y localizaciones correspondientes
 
-    for p in periodos.index:
-        dias_vars[p] = list(range(periodos.loc[p, 'fecha_inicio'], periodos.loc[p, 'fecha_fin'] +1))
-        locs_vars[p] = []
-        if periodos.loc[p, 'tipo_desc'] == 'FLOTE':
-            locs_vars[p].extend([m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] and 
-                              muelles.loc[m, 'ancho'] >= proyectos.loc[periodos.loc[p, 'proyecto_id'], 'manga'])])
+    periodos['locs'] = periodos.apply(lambda row: [m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora'] and
+                              muelles.loc[m, 'ancho'] >= proyectos.loc[row['proyecto_id'], 'manga'])], axis=1)
+    periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)), axis=1)
+
+    locs_vars = periodos['locs'].to_dict()
+    dias_vars = periodos['dias'].to_dict()
 
     x = {(p, d, loc): LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
          for p in periodos.index
