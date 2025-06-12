@@ -18,18 +18,20 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
 
     # Aquí lógica para leer los datos desde un archivo o base de datos
     proyectos = pd.DataFrame({
-        'eslora': [120, 100],
-        'manga': [18, 15],
-        'proyecto_id': ['PRO1', 'PRO2']})
+        'eslora': [120, 100, 120],
+        'manga': [18, 15, 18],
+        'proyecto_id': ['PRO1', 'PRO2', 'PRO3'],
+        'nombre_area': ['sin_ubicacion_asignada', 'sin_ubicacion_asignada', 'SUR'],
+        'proyecto_a_optimizar': [True, True, False]})
     
     proyectos.set_index('proyecto_id', inplace=True)
 
     periodos = pd.DataFrame({
-        'tipo_desc': ['FLOTE', 'FLOTE'],
-        'fecha_inicio': ['2025-08-08', '2025-08-10'],
-        'fecha_fin': ['2025-08-20', '2025-08-16'],
-        'proyecto_id': ['PRO1', 'PRO2'],
-        'periodo_id': [0, 0]})
+        'tipo_desc': ['FLOTE', 'FLOTE', 'FLOTE'],
+        'fecha_inicio': ['2025-08-08', '2025-08-10', '2025-08-17'],
+        'fecha_fin': ['2025-08-20', '2025-08-16', '2025-08-25'],
+        'proyecto_id': ['PRO1', 'PRO2', 'PRO3'],
+        'periodo_id': [0, 0, 0]})
     
     periodos['fecha_inicio'] = pd.to_datetime(periodos['fecha_inicio'])
     periodos['fecha_fin'] = pd.to_datetime(periodos['fecha_fin'])
