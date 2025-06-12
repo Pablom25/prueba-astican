@@ -34,18 +34,13 @@ def definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, p
 
     restricciones = {}
 
-    # Cada periodo como mucho en un muelle por día
-    restricciones['1_por_día'] = []
-    for p in periodos.index:
-        for d in dias_vars[p]:
-            restricciones['1_por_día'].append(lpSum(x[(p, d, loc)] for loc in locs_vars[p]) <= 1)
-    
     # Cada periodo tiene que ser completo, o todos los días (si asignado, y = 1) o ninguno (no asignado, y = 0)
     restricciones['Periodo_Completo'] = []
     for p in periodos.index:
         restricciones['Periodo_Completo'].append(lpSum(x[(p, d, loc)] for d in dias_vars[p] for loc in locs_vars[p]) == len(dias_vars[p]) - (1 - y[p])*len(dias_vars[p]))
-        # Y es 1 si el periodo está asignado a algún muelle en algun momento, 0 si no
-        restricciones['Periodo_Completo'].append(lpSum(x[(p, d, loc)] for d in dias_vars[p] for loc in locs_vars[p]) >= y[p])
+        # Cada día del periodo debe estar asignado a un solo muelle si y[p] = 1
+        for d in dias_vars[p]:
+            restricciones['Periodo_Completo'].append(lpSum(x[(p, d, loc)] for loc in locs_vars[p]) == y[p])
 
     # Los barcos en el mismo muelle no pueden exceder la longitud del muelle
     restricciones['Longitud_Muelle'] = []
