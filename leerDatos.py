@@ -2,6 +2,20 @@ import pandas as pd
 
 
 def leer_datos():
+    """Crea DataFrames con los datos de los proyectos, periodos y muelles; y la fecha inicial.
+
+    Returns
+    -------
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    muelles : pd.DataFrame
+        DataFrame con las dimensiones de los muelles.
+    fecha_inicial : str
+        Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
+    """    
+
     # Aquí lógica para leer los datos desde un archivo o base de datos
     proyectos = pd.DataFrame({       
         'eslora': [120, 100],
