@@ -2,6 +2,29 @@ import pandas as pd
 from pulp import *
 
 def definir_variables(proyectos, periodos, muelles):
+    """Define las variables de decisión del problema de optimización.
+
+    Parameters
+    ----------
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    muelles : pd.DataFrame
+        DataFrame con las dimensiones de los muelles.
+
+    Returns
+    -------
+    x : dict
+        Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+    y : dict
+        Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+    dias_vars : dict
+        Diccionario que mapea cada periodo a una lista de días correspondientes.
+    locs_vars : dict
+        Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
+    """
+
     dias_vars = {}
     locs_vars = {}
     
@@ -26,11 +49,50 @@ def definir_variables(proyectos, periodos, muelles):
 
 
 def definir_funcion_objetivo(x):
+    """Define la función objetivo del problema de optimización.
+
+    Parameters
+    ----------
+    x : dict
+        Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+
+    Returns
+    -------
+    objetivo : LpAffineExpression
+        Expresión lineal que representa la función objetivo a maximizar.
+    """
+
     objetivo = lpSum(x.values())
     return objetivo
 
 
 def definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, proyectos):
+    """Define las restricciones del problema de optimización.
+
+    Parameters
+    ----------
+    x : dict
+        Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+    y : dict
+        Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+    dias : list
+        Lista de días desde la fecha inicial hasta la fecha final de los periodos.
+    dias_vars : dict
+        Diccionario que mapea cada periodo a una lista de días correspondientes.
+    locs_vars : dict
+        Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    muelles : pd.DataFrame
+        DataFrame con las dimensiones de los muelles.
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    
+    Returns
+    -------
+    restricciones : dict
+        Diccionario de restricciones del problema de optimización.
+    """
 
     restricciones = {}
 
@@ -52,6 +114,20 @@ def definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, p
 
 
 def resolver_problema(objetivo, restricciones):
+    """Resuelve el problema de optimización utilizando PuLP.
+
+    Parameters
+    ----------
+    objetivo : LpAffineExpression
+        Expresión lineal que representa la función objetivo a maximizar.
+    restricciones : dict
+        Diccionario de restricciones del problema de optimización.
+   
+    Returns
+    -------
+    prob : LpProblem
+        Objeto LpProblem que representa el problema de optimización.
+    """
 
     prob = LpProblem("Asignación de Periodos a Muelles", LpMaximize)
     prob += objetivo
@@ -82,6 +158,24 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
         print(row)
 
 def crear_dataframe_resultados(x, dias_vars, locs_vars, periodos):
+    """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
+
+    Parameters
+    ----------
+    x : dict
+        Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+    dias_vars : dict
+        Diccionario que mapea cada periodo a una lista de días correspondientes.
+    locs_vars : dict
+        Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    
+    Returns
+    -------
+    resultados : pd.DataFrame
+        DataFrame con la asignación de periodos a muelles, incluyendo proyecto_id, periodo_id, ubicación, fecha_inicio y fecha_fin.
+    """
     
     data = {
         'proyecto_id': [],
