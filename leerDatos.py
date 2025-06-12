@@ -21,7 +21,7 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
         'eslora': [120, 100, 120],
         'manga': [18, 15, 18],
         'proyecto_id': ['PRO1', 'PRO2', 'PRO3'],
-        'nombre_area': ['sin_ubicacion_asignada', 'sin_ubicacion_asignada', 'SUR'],
+        'nombre_area': ['SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE SUR'],
         'proyecto_a_optimizar': [True, True, False]})
     
     proyectos.set_index('proyecto_id', inplace=True)
