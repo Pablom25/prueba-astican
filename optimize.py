@@ -14,12 +14,12 @@ def definir_variables(proyectos, periodos, muelles):
             locs_vars[p].extend([m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] and 
                               muelles.loc[m, 'ancho'] >= proyectos.loc[periodos.loc[p, 'proyecto_id'], 'manga'])])
 
-    x = {(p, d, loc): LpVariable("x_"+ p + "_" + str(d) + "_" + loc,(p, d, loc), cat='Binary')
+    x = {(p, d, loc): LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
          for p in periodos.index
          for d in dias_vars[p]
          for loc in locs_vars[p] if loc}
     
-    y = {p: LpVariable("y_" + p, p, cat='Binary')
+    y = {p: LpVariable(f"y_{p}", p, cat='Binary')
          for p in periodos.index}
     
     return x, y, dias_vars, locs_vars
