@@ -1,6 +1,6 @@
 import pandas as pd
 
-def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, fecha_inicial: pd.Timestamp) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list, set, set, dict]:
+def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, fecha_inicial: pd.Timestamp) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list, set, set]:
     """Preprocesa los datos de proyectos, periodos y muelles para su uso en la optimización.
 
     Parameters
@@ -28,8 +28,6 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         Set de proyectos confirmados (no a optimizar).
     set_sinConfirmar : set
         Set de proyectos sin confirmar (a optimizar).
-    longitudes_confirmados : dict
-        Diccionario con la longitud total de barcos confirmados por ubicación.
     """
 
     # Convertir fechas a integer
@@ -43,7 +41,4 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     set_sinConfirmar = set(proyectos[proyectos['proyecto_a_optimizar']].index)
     set_confirmados = set(proyectos[~proyectos['proyecto_a_optimizar']].index)
 
-    # Crear diccionario de longitud total de barcos confirmados por ubicación
-    longitudes_confirmados = proyectos[~proyectos['proyecto_a_optimizar']].groupby('nombre_area')['eslora'].sum().to_dict()
-
-    return proyectos, periodos, muelles, dias, set_confirmados, set_sinConfirmar, longitudes_confirmados
+    return proyectos, periodos, muelles, dias, set_confirmados, set_sinConfirmar

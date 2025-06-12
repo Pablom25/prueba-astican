@@ -65,7 +65,7 @@ def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_vars: dict, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, longitudes_confirmados: dict) -> dict:
+def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_vars: dict, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_confirmados: dict) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -95,6 +95,14 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
         Diccionario de restricciones del problema de optimización.
     """
 
+    # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
+    longitudes_confirmados = {}
+    for d in dias:
+        for m in muelles.index:
+            for p in set_confirmados:
+                if d >= periodos.loc[periodos['proyecto_id']==p]['fecha_inicio'].values[0] and d <= periodos.loc[periodos['proyecto_id']==p]['fecha_fin'].values[0] and m == proyectos.loc[p, 'nombre_area']:
+                    longitudes_confirmados[(d,m)] = longitudes_confirmados.get(d, 0) + proyectos.loc[p, 'eslora']
+
     restricciones = {}
 
     # Cada día del periodo debe estar asignado exactamente a un muelle si y[p] = 1 y a ninguno si y[p] = 0
@@ -110,7 +118,7 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
     # Los barcos en el mismo muelle no pueden exceder la longitud del muelle
     restricciones.update(
         {
-            f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(x.get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get(loc,0) <= muelles.loc[loc, 'longitud'], 
+            f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(x.get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= muelles.loc[loc, 'longitud'], 
             f"Longitud_Muelle_{d}_{loc}")
             for loc in muelles.index
             for d in dias
