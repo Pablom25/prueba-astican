@@ -101,6 +101,7 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
             for d in dias_vars[p]
         }
     )
+    # sss
 
     # Los barcos en el mismo muelle no pueden exceder la longitud del muelle
     restricciones.update(
