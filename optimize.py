@@ -93,17 +93,7 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
 
     restricciones = {}
 
-    # Cada periodo tiene que ser completo, o todos los días (si asignado, y = 1) o ninguno (no asignado, y = 0)
-    restricciones.update(
-        {
-            f"Periodo_Completo_{p}": (lpSum(x[(p, d, loc)] for d in dias_vars[p] for loc in locs_vars[p]) == len(dias_vars[p]) - (1 - y[p])*len(dias_vars[p]), 
-            f"Periodo_Completo_{p}"
-            )
-            for p in periodos.index
-        }
-    )
-
-    # Cada día del periodo debe estar asignado a un solo muelle si y[p] = 1
+    # Cada día del periodo debe estar asignado exactamente a un muelle si y[p] = 1 y a ninguno si y[p] = 0
     restricciones.update(
         {
             f"Un_Muelle_Por_Dia_{p}_{d}": (lpSum(x[(p, d, loc)] for loc in locs_vars[p]) == y[p], f"Un_Muelle_Por_Dia_{p}_{d}")
