@@ -134,8 +134,8 @@ def resolver_problema(objetivo: LpAffineExpression, restricciones: dict) -> LpPr
     prob = LpProblem("Asignación de Periodos a Muelles", LpMaximize)
     prob += objetivo
 
-    for constraint, name in restricciones.values():
-            prob += constraint, name
+    for c in restricciones.values():
+            prob += c
 
     prob.solve()
 
