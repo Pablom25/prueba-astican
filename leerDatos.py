@@ -37,7 +37,7 @@ def leer_datos():
     muelles = pd.DataFrame({
         'longitud': [130, 110],
         'ancho': [20, 20],
-        'muelle_id': ['SUR', 'NORTE']})
+        'nombre': ['SUR', 'NORTE']})
 
     muelles.set_index('muelle_id', inplace=True)
 
