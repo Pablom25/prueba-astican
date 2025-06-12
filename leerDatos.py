@@ -17,10 +17,12 @@ def leer_datos():
     """    
 
     # Aquí lógica para leer los datos desde un archivo o base de datos
-    proyectos = pd.DataFrame({       
+    proyectos = pd.DataFrame({
         'eslora': [120, 100],
-        'manga': [18, 15]}, 
-        index=['PRO1', 'PRO2'])
+        'manga': [18, 15],
+        'proyecto_id': ['PRO1', 'PRO2']})
+    
+    proyectos.set_index('proyecto_id', inplace=True)
 
     periodos = pd.DataFrame({
         'tipo_desc': ['FLOTE', 'FLOTE'],
@@ -28,13 +30,16 @@ def leer_datos():
         'fecha_fin': ['2025-08-20', '2025-08-16'],
         'proyecto_id': ['PRO1', 'PRO2'],
         'periodo_id': [0, 0]})
-
-    periodos.index = periodos['proyecto_id'] + '_' + periodos['periodo_id'].astype(str)
+    
+    periodos['id_proyecto_reparacion'] = periodos['proyecto_id'] + '_' + periodos['periodo_id'].astype(str)
+    periodos.set_index('id_proyecto_reparacion', inplace=True)
 
     muelles = pd.DataFrame({
         'longitud': [130, 110],
-        'ancho': [20, 20]},
-        index=['SUR', 'NORTE'])
+        'ancho': [20, 20],
+        'muelle_id': ['SUR', 'NORTE']})
+
+    muelles.set_index('muelle_id', inplace=True)
 
     fecha_inicial = periodos['fecha_inicio'].min()
 
