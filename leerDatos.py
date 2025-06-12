@@ -41,7 +41,7 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
     muelles = pd.DataFrame({
         'longitud': [130, 110],
         'ancho': [20, 20],
-        'nombre': ['SUR', 'NORTE']})
+        'nombre': ['MUELLE SUR', 'MUELLE NORTE']})
 
     muelles.set_index('nombre', inplace=True)
 
