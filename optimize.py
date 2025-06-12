@@ -94,18 +94,33 @@ def definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, p
     restricciones = {}
 
     # Cada periodo tiene que ser completo, o todos los días (si asignado, y = 1) o ninguno (no asignado, y = 0)
-    restricciones['Periodo_Completo'] = []
-    for p in periodos.index:
-        restricciones['Periodo_Completo'].append(lpSum(x[(p, d, loc)] for d in dias_vars[p] for loc in locs_vars[p]) == len(dias_vars[p]) - (1 - y[p])*len(dias_vars[p]))
-        # Cada día del periodo debe estar asignado a un solo muelle si y[p] = 1
-        for d in dias_vars[p]:
-            restricciones['Periodo_Completo'].append(lpSum(x[(p, d, loc)] for loc in locs_vars[p]) == y[p])
+    restricciones.update(
+        {
+            f"Periodo_Completo_{p}": (lpSum(x[(p, d, loc)] for d in dias_vars[p] for loc in locs_vars[p]) == len(dias_vars[p]) - (1 - y[p])*len(dias_vars[p]), 
+            f"Periodo_Completo_{p}"
+            )
+            for p in periodos.index
+        }
+    )
+
+    # Cada día del periodo debe estar asignado a un solo muelle si y[p] = 1
+    restricciones.update(
+        {
+            f"Un_Muelle_Por_Dia_{p}_{d}": (lpSum(x[(p, d, loc)] for loc in locs_vars[p]) == y[p], f"Un_Muelle_Por_Dia_{p}_{d}")
+            for p in periodos.index
+            for d in dias_vars[p]
+        }
+    )
 
     # Los barcos en el mismo muelle no pueden exceder la longitud del muelle
-    restricciones['Longitud_Muelle'] = []
-    for d in dias:
-        for loc in muelles.index:
-            restricciones['Longitud_Muelle'].append(lpSum(x[(p,d,loc)] * proyectos.loc[periodos.loc[p,'proyecto_id'], 'eslora'] for p in periodos.index if (p,d,loc) in x.keys()) <= muelles.loc[loc, 'longitud'])
+    restricciones.update(
+        {
+            f"Longitud_Muelle_{d}_{loc}": (lpSum(x[(p, d, loc)] * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index if (p, d, loc) in x.keys()) <= muelles.loc[loc, 'longitud'], 
+            f"Longitud_Muelle_{d}_{loc}")
+            for loc in muelles.index
+            for d in dias
+        }
+    )
 
     return restricciones
 
@@ -129,9 +144,8 @@ def resolver_problema(objetivo, restricciones):
     prob = LpProblem("Asignación de Periodos a Muelles", LpMaximize)
     prob += objetivo
 
-    for constraint in restricciones.values():
-        for c in constraint:
-            prob += c
+    for constraint, name in restricciones.values():
+            prob += constraint, name
 
     prob.solve()
 
