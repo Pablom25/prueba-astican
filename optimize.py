@@ -1,7 +1,7 @@
 import pandas as pd
 import pulp
 
-def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, set_sinConfirmar: set) -> tuple[dict, dict]:
+def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, dict]:
     """Define las variables de decisión del problema de optimización.
 
     Parameters
@@ -12,8 +12,8 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         DataFrame con los periodos de los proyectos.
     muelles : pd.DataFrame
         DataFrame con las dimensiones de los muelles.
-    set_sinConfirmar : set
-        Conjunto de proyectos sin confirmar (a optimizar).
+    set_a_optimizar : set
+        Set de proyectos a optimizar.
 
     Returns
     -------
@@ -26,12 +26,12 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     # Definir variables para cada periodo solo en los días y localizaciones correspondientes
 
     x = {(p, d, loc): pulp.LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
-         for p in periodos[periodos["proyecto_id"].isin(set_sinConfirmar)].index
+         for p in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index
          for d in periodos.loc[p, 'dias']
          for loc in periodos.loc[p, 'ubicaciones']}
     
     y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
-         for p in set_sinConfirmar}
+         for p in set_a_optimizar}
     
     return x, y
 
@@ -54,7 +54,7 @@ def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_confirmados: dict) -> dict:
+def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_no_optimizar: dict) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -71,8 +71,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
         DataFrame con las dimensiones de los muelles.
     proyectos : pd.DataFrame
         DataFrame con las dimensiones de los proyectos.
-    longitudes_confirmados : dict
-        Diccionario con la longitud total de barcos confirmados por ubicación.
+    set_no_optimizar : set
+        Set de proyectos que no optimizar.
     
     Returns
     -------
@@ -81,8 +81,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
     """
 
     # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
-    mergeddf = periodos.merge(proyectos[['eslora', 'nombre_area']], left_on='proyecto_id', right_index=True, how='left')
-    longitudes_confirmados = mergeddf[mergeddf['proyecto_id'].isin(set_confirmados)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
+    mergeddf = periodos.merge(proyectos[['eslora']], left_on='proyecto_id', right_index=True, how='left')
+    longitudes_confirmados = mergeddf[mergeddf['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
 
     restricciones = {}
 
@@ -154,7 +154,7 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
 
 # Dataframe de resultados
 
-def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_sinConfirmar: set, set_confirmados: set) -> pd.DataFrame:
+def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> pd.DataFrame:
     """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
     Parameters
@@ -165,10 +165,10 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
         DataFrame con las dimensiones de los proyectos.
     periodos : pd.DataFrame
         DataFrame con los periodos de los proyectos.
-    set_sinConfirmar : set
-        Conjunto de proyectos sin confirmar.
-    set_confirmados : set
-        Conjunto de proyectos confirmados.
+    set_a_optimizar : set
+        Set de proyectos a optimizar.
+    set_no_optimizar : set
+        Set de proyectos que no optimizar.
     
     Returns
     -------
@@ -183,7 +183,7 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
         'fecha_inicio': [],
         'fecha_fin': []}
     
-    for p in periodos[periodos["proyecto_id"].isin(set_sinConfirmar)].index:
+    for p in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index:
         for loc in periodos.loc[p, 'ubicaciones']:
             if x[(p, periodos.loc[p, 'dias'][0], loc)].varValue == 1:
                 # Proyectos asignados por optimizador
@@ -198,15 +198,15 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
         if periodos.loc[p, 'proyecto_id'] not in data['proyecto_id']:
             data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
             data['periodo_id'].append(periodos.loc[p, 'periodo_id'])
-            data['ubicación'].append(proyectos.loc[periodos.loc[p, 'proyecto_id'], 'nombre_area'])
+            data['ubicación'].append(periodos.loc[p, 'nombre_area'])
             data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
             data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
     
     # Proyectos confirmados
-    for p in periodos[periodos["proyecto_id"].isin(set_confirmados)].index:
+    for p in periodos[periodos["proyecto_id"].isin(set_no_optimizar)].index:
         data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
         data['periodo_id'].append(periodos.loc[p, 'periodo_id'])
-        data['ubicación'].append(proyectos.loc[periodos.loc[p, 'proyecto_id'], 'nombre_area'])
+        data['ubicación'].append(periodos.loc[p, 'nombre_area'])
         data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
         data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
 
