@@ -81,12 +81,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
     """
 
     # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
-    longitudes_confirmados = {}
-    for d in dias:
-        for m in muelles.index:
-            for p in set_confirmados:
-                if d >= periodos.loc[periodos['proyecto_id']==p]['fecha_inicio'].values[0] and d <= periodos.loc[periodos['proyecto_id']==p]['fecha_fin'].values[0] and m == proyectos.loc[p, 'nombre_area']:
-                    longitudes_confirmados[(d,m)] = longitudes_confirmados.get(d, 0) + proyectos.loc[p, 'eslora']
+    mergeddf = periodos.merge(proyectos[['eslora', 'nombre_area']], left_on='proyecto_id', right_index=True, how='left')
+    longitudes_confirmados = mergeddf[mergeddf['proyecto_id'].isin(set_confirmados)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
 
     restricciones = {}
 
