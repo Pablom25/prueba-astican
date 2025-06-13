@@ -7,12 +7,12 @@ def optimize():
     proyectos, periodos, muelles, fecha_inicial = leer_datos()
     proyectos, periodos, muelles, dias, set_confirmados, set_sinConfirmar = preprocesar_datos(proyectos, periodos, muelles, fecha_inicial)
     
-    x, y, dias_vars, locs_vars = definir_variables(proyectos, periodos, muelles, set_sinConfirmar)
+    x, y = definir_variables(proyectos, periodos, muelles, set_sinConfirmar)
     objetivo = definir_funcion_objetivo(x)
-    restricciones = definir_restricciones(x, y, dias, dias_vars, locs_vars, periodos, muelles, proyectos, set_confirmados)
+    restricciones = definir_restricciones(x, y, dias, periodos, muelles, proyectos, set_confirmados)
     
     prob = resolver_problema(objetivo, restricciones)
-    resultados = crear_dataframe_resultados(x, dias_vars, locs_vars, proyectos, periodos, set_sinConfirmar, set_confirmados)
+    resultados = crear_dataframe_resultados(x, proyectos, periodos, set_sinConfirmar, set_confirmados)
     print("Status:", pulp.LpStatus[prob.status])
     print("Resultados:\n\n", resultados)
 

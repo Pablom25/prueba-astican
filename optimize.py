@@ -1,7 +1,7 @@
 import pandas as pd
 import pulp
 
-def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, set_sinConfirmar: set) -> tuple[dict, dict, dict, dict]:
+def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, set_sinConfirmar: set) -> tuple[dict, dict]:
     """Define las variables de decisión del problema de optimización.
 
     Parameters
@@ -21,30 +21,19 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
     y : dict
         Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
-    dias_vars : dict
-        Diccionario que mapea cada periodo a una lista de días correspondientes.
-    locs_vars : dict
-        Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
     """
     
     # Definir variables para cada periodo solo en los días y localizaciones correspondientes
 
-    periodos['locs'] = periodos.apply(lambda row: [m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora'] and
-                              muelles.loc[m, 'ancho'] >= proyectos.loc[row['proyecto_id'], 'manga'])], axis=1)
-    periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)), axis=1)
-
-    locs_vars = periodos['locs'].to_dict()
-    dias_vars = periodos['dias'].to_dict()
-
     x = {(p, d, loc): pulp.LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
          for p in periodos[periodos["proyecto_id"].isin(set_sinConfirmar)].index
-         for d in dias_vars[p]
-         for loc in locs_vars[p]}
+         for d in periodos.loc[p, 'dias']
+         for loc in periodos.loc[p, 'ubicaciones']}
     
     y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
          for p in set_sinConfirmar}
     
-    return x, y, dias_vars, locs_vars
+    return x, y
 
 
 def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
@@ -65,7 +54,7 @@ def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_vars: dict, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_confirmados: dict) -> dict:
+def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_confirmados: dict) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -76,10 +65,6 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
         Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
     dias : list
         Lista de días desde la fecha inicial hasta la fecha final de los periodos.
-    dias_vars : dict
-        Diccionario que mapea cada periodo a una lista de días correspondientes.
-    locs_vars : dict
-        Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
     periodos : pd.DataFrame
         DataFrame con los periodos de los proyectos.
     muelles : pd.DataFrame
@@ -108,10 +93,10 @@ def definir_restricciones(x: dict, y: dict, dias: list, dias_vars: dict, locs_va
     # Cada día del periodo debe estar asignado exactamente a un muelle si y[p] = 1 y a ninguno si y[p] = 0
     restricciones.update(
         {
-            f"Asignacion_{p_k}_{d}": (pulp.lpSum(x[(p_k, d, loc)] for loc in locs_vars[p_k]) == y[p], f"Asignacion{p_k}_{d}")
+            f"Asignacion_{p_k}_{d}": (pulp.lpSum(x[(p_k, d, loc)] for loc in periodos.loc[p_k, 'ubicaciones']) == y[p], f"Asignacion{p_k}_{d}")
             for p in proyectos[proyectos['proyecto_a_optimizar']].index
             for p_k in periodos[periodos["proyecto_id"] == p].index
-            for d in dias_vars[p_k]
+            for d in periodos.loc[p_k, 'dias']
         }
     )
 
@@ -173,17 +158,13 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
 
 # Dataframe de resultados
 
-def crear_dataframe_resultados(x: dict, dias_vars: dict, locs_vars: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_sinConfirmar: set, set_confirmados: set) -> pd.DataFrame:
+def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_sinConfirmar: set, set_confirmados: set) -> pd.DataFrame:
     """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
     Parameters
     ----------
     x : dict
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
-    dias_vars : dict
-        Diccionario que mapea cada periodo a una lista de días correspondientes.
-    locs_vars : dict
-        Diccionario que mapea cada periodo a una lista de localizaciones disponibles para ese periodo.
     proyectos : pd.DataFrame
         DataFrame con las dimensiones de los proyectos.
     periodos : pd.DataFrame
@@ -207,8 +188,8 @@ def crear_dataframe_resultados(x: dict, dias_vars: dict, locs_vars: dict, proyec
         'fecha_fin': []}
     
     for p in periodos[periodos["proyecto_id"].isin(set_sinConfirmar)].index:
-        for loc in locs_vars[p]:
-            if x[(p, dias_vars[p][0], loc)].varValue == 1:
+        for loc in periodos.loc[p, 'ubicaciones']:
+            if x[(p, periodos.loc[p, 'dias'][0], loc)].varValue == 1:
                 # Proyectos asignados por optimizador
                 data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
                 data['periodo_id'].append(periodos.loc[p, 'periodo_id'])

@@ -41,4 +41,11 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     set_sinConfirmar = set(proyectos[proyectos['proyecto_a_optimizar']].index)
     set_confirmados = set(proyectos[~proyectos['proyecto_a_optimizar']].index)
 
+    # Columna de dias y localizaciones disponibles
+    periodos['ubicaciones'] = periodos.apply(lambda row: [proyectos.loc[row['proyecto_id'], 'nombre_area']] if proyectos.loc[row['proyecto_id'], 'nombre_area'] != 'SIN UBICACION ASIGNADA' 
+                                             else [m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora'] and 
+                                                                                muelles.loc[m, 'ancho'] >= proyectos.loc[row['proyecto_id'], 'manga'])], axis=1)
+    
+    periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)), axis=1)
+
     return proyectos, periodos, muelles, dias, set_confirmados, set_sinConfirmar
