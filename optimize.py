@@ -186,7 +186,8 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
         'periodo_id': [],
         'ubicación': [],
         'fecha_inicio': [],
-        'fecha_fin': []}
+        'fecha_fin': [],
+        'id_proyecto_reparacion': []}
     
     for p in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index:
         for loc in periodos.loc[p, 'ubicaciones']:
@@ -197,15 +198,17 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
                 data['ubicación'].append(loc)
                 data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
                 data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
+                data['id_proyecto_reparacion'].append(p)
                 break
         
         # Proyectos sin asignación por optimizador
-        if periodos.loc[p, 'proyecto_id'] not in data['proyecto_id']:
+        if p not in data['id_proyecto_reparacion']:
             data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
             data['periodo_id'].append(periodos.loc[p, 'periodo_id'])
             data['ubicación'].append(periodos.loc[p, 'nombre_area'])
             data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
             data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
+            data['id_proyecto_reparacion'].append(p)
     
     # Proyectos confirmados
     for p in periodos[periodos["proyecto_id"].isin(set_no_optimizar)].index:
@@ -214,8 +217,9 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
         data['ubicación'].append(periodos.loc[p, 'nombre_area'])
         data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
         data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
+        data['id_proyecto_reparacion'].append(p)
 
     resultados = pd.DataFrame(data)
-    resultados.index = resultados['proyecto_id'] + '_' + resultados['periodo_id'].astype(str)
+    resultados.set_index('id_proyecto_reparacion', inplace=True)
 
     return resultados
