@@ -143,13 +143,18 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
     print("Día\t", "\t".join(muelles.index))
 
     for d in dias:
-        row = f"{d}\t"
+        row = f"{d}\t "
         for m in muelles.index:
             for p in periodos.index:
                 if (p,d,m) in x.keys():
                     if x[(p,d,m)].varValue == 1:
-                        row += f"{p}\t"
+                        row += f"{p}\t\t"
                         break
+                elif periodos.loc[p, 'nombre_area'] == m and d in periodos.loc[p, 'dias']:
+                    row += f"{p}\t\t"
+                    break
+            else:
+                row += "N/A\t\t"
         print(row)
 
 # Dataframe de resultados

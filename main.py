@@ -1,7 +1,6 @@
 from leerDatos import leer_datos
 from procesarDatos import preprocesar_datos
-from optimize import definir_variables, definir_funcion_objetivo, definir_restricciones, resolver_problema, crear_dataframe_resultados
-import pulp
+from optimize import definir_variables, definir_funcion_objetivo, definir_restricciones, resolver_problema, crear_dataframe_resultados, imprimir_asignacion
 
 def optimize():
     proyectos, periodos, muelles, fecha_inicial = leer_datos()
@@ -13,7 +12,7 @@ def optimize():
     
     prob = resolver_problema(objetivo, restricciones)
     resultados = crear_dataframe_resultados(x, proyectos, periodos, set_a_optimizar, set_no_optimizar)
-    print("Status:", pulp.LpStatus[prob.status])
-    print("Resultados:\n\n", resultados)
+    imprimir_asignacion(prob, x, dias, periodos, muelles)
+    print("\nResultados:\n\n", resultados)
 
 optimize()
