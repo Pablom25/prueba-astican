@@ -281,6 +281,5 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
         data['id_resultado'].append(f"{periodos.loc[p_k, 'proyecto_id']}_{pd.to_datetime(periodos.loc[p_k, 'fecha_inicio'], unit='D', origin=fecha_inicial)}_{pd.to_datetime(periodos.loc[p_k, 'fecha_fin'], unit='D', origin=fecha_inicial)}_{periodos.loc[p_k, 'nombre_area']}")
 
     resultados = pd.DataFrame(data)
-    resultados.set_index('id_resultado', inplace=True)
 
     return resultados
