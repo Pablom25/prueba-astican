@@ -25,10 +25,10 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     
     # Definir variables para cada periodo solo en los días y localizaciones correspondientes
 
-    x = {(p, d, loc): pulp.LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
-         for p in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index
-         for d in periodos.loc[p, 'dias']
-         for loc in periodos.loc[p, 'ubicaciones']}
+    x = {(p_k, d, loc): pulp.LpVariable(f"x_{p_k}_{d}_{loc}",(p_k, d, loc), cat='Binary')
+         for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index
+         for d in periodos.loc[p_k, 'dias']
+         for loc in periodos.loc[p_k, 'ubicaciones']}
     
     y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
          for p in set_a_optimizar}
