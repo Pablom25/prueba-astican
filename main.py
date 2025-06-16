@@ -6,9 +6,9 @@ def optimize():
     proyectos, periodos, muelles, fecha_inicial = leer_datos()
     proyectos, periodos, muelles, dias, set_a_optimizar, set_no_optimizar = preprocesar_datos(proyectos, periodos, muelles, fecha_inicial)
     
-    x, y = definir_variables(proyectos, periodos, muelles, set_a_optimizar)
-    objetivo = definir_funcion_objetivo(x)
-    restricciones = definir_restricciones(x, y, dias, periodos, muelles, proyectos, set_no_optimizar)
+    x, y, m = definir_variables(periodos, set_a_optimizar)
+    objetivo = definir_funcion_objetivo(x, m)
+    restricciones = definir_restricciones(x, y, m, dias, periodos, muelles, proyectos, set_a_optimizar, set_no_optimizar)
     
     prob = resolver_problema(objetivo, restricciones)
     resultados = crear_dataframe_resultados(x, proyectos, periodos, set_a_optimizar, set_no_optimizar)

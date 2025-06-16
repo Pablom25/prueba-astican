@@ -1,17 +1,13 @@
 import pandas as pd
 import pulp
 
-def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, dict]:
+def definir_variables(periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, dict, dict]:
     """Define las variables de decisión del problema de optimización.
 
     Parameters
     ----------
-    proyectos : pd.DataFrame
-        DataFrame con las dimensiones de los proyectos.
     periodos : pd.DataFrame
         DataFrame con los periodos de los proyectos.
-    muelles : pd.DataFrame
-        DataFrame con las dimensiones de los muelles.
     set_a_optimizar : set
         Set de proyectos a optimizar.
 
@@ -21,6 +17,8 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
     y : dict
         Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+    m : dict
+        Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
     """
     
     # Definir variables para cada periodo solo en los días y localizaciones correspondientes
@@ -33,16 +31,22 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
          for p in set_a_optimizar}
     
-    return x, y
+    m = {(p_k, d): pulp.LpVariable(f"m_{p_k}_{d}", (p_k, d), cat='Binary')
+         for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
+         for d in periodos.loc[p_k, 'dias']}
+    
+    return x, y, m
 
 
-def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
+def definir_funcion_objetivo(x: dict, m: dict) -> pulp.LpAffineExpression:
     """Define la función objetivo del problema de optimización.
 
     Parameters
     ----------
     x : dict
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+    m : dict
+        Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
 
     Returns
     -------
@@ -50,11 +54,11 @@ def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
         Expresión lineal que representa la función objetivo a maximizar.
     """
 
-    objetivo = pulp.lpSum(x.values())
+    objetivo = pulp.lpSum(x.values()) - pulp.lpSum(m.values())
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_no_optimizar: dict) -> dict:
+def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -63,6 +67,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
     y : dict
         Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+    m : dict
+        Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
     dias : list
         Lista de días desde la fecha inicial hasta la fecha final de los periodos.
     periodos : pd.DataFrame
@@ -71,6 +77,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
         DataFrame con las dimensiones de los muelles.
     proyectos : pd.DataFrame
         DataFrame con las dimensiones de los proyectos.
+    set_a_optimizar : set
+        Set de proyectos a optimizar.
     set_no_optimizar : set
         Set de proyectos que no optimizar.
     
@@ -103,6 +111,27 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
             f"Longitud_Muelle_{d}_{loc}")
             for loc in muelles.index
             for d in dias
+        }
+    )
+
+    # m es igual a uno para un periodo en un día d si en d-1 está en un muelle diferente, si no es cero
+    restricciones.update(
+        {
+            f"Movimiento_{p_k}_{d}_{loc}_mayor": (m[(p_k, d)] >= x[(p_k, d, loc)] - x[(p_k, d-1, loc)],
+            f"Movimiento_{p_k}_{d}_{loc}_mayor")
+            for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
+            for d in periodos.loc[p_k, 'dias'][1:]  # Comenzar desde el segundo día para evitar d-1 fuera de rango
+            for loc in periodos.loc[p_k, 'ubicaciones']
+        }
+    )
+
+    restricciones.update(
+        {
+            f"Movimiento_{p_k}_{d}_{loc}_menor": (m[(p_k, d)] <= 2 - x[(p_k, d, loc)] - x[(p_k, d-1, loc)],
+            f"Movimiento_{p_k}_{d}_{loc}_menor")
+            for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
+            for d in periodos.loc[p_k, 'dias'][1:]  # Comenzar desde el segundo día para evitar d-1 fuera de rango
+            for loc in periodos.loc[p_k, 'ubicaciones']
         }
     )
 
