@@ -38,7 +38,7 @@ def definir_variables(periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dic
     return x, y, m
 
 
-def definir_funcion_objetivo(x: dict, m: dict) -> pulp.LpAffineExpression:
+def definir_funcion_objetivo(x: dict, m: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_a_optimizar: set, MOVED_PROJECTS_PENALTY_PER_MOVEMENT: int) -> pulp.LpAffineExpression:
     """Define la función objetivo del problema de optimización.
 
     Parameters
@@ -47,6 +47,10 @@ def definir_funcion_objetivo(x: dict, m: dict) -> pulp.LpAffineExpression:
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
     m : dict
         Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    MOVED_PROJECTS_PENALTY_PER_MOVEMENT : int
+        Penalización por cada movimiento de un barco a otro muelle en un periodo.
 
     Returns
     -------
@@ -54,7 +58,7 @@ def definir_funcion_objetivo(x: dict, m: dict) -> pulp.LpAffineExpression:
         Expresión lineal que representa la función objetivo a maximizar.
     """
 
-    objetivo = pulp.lpSum(x.values()) - pulp.lpSum(m.values())
+    objetivo = pulp.lpSum(x[p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in x.keys()) - MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(m.values())
     return objetivo
 
 

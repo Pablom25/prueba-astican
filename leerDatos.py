@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp]:
+def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp, int]:
     """Crea DataFrames con los datos de los proyectos, periodos y muelles; y la fecha inicial.
 
     Returns
@@ -14,6 +14,8 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
         DataFrame con las dimensiones de los muelles.
     fecha_inicial : str
         Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
+    MOVED_PROJECTS_PENALTY_PER_MOVEMENT : int
+        Penalización por cada movimiento de un barco a otro muelle en un periodo.
     """    
 
     # Aquí lógica para leer los datos desde un archivo o base de datos
@@ -21,6 +23,7 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
         'eslora': [120, 100, 120],
         'manga': [18, 15, 18],
         'proyecto_id': ['PRO1', 'PRO2', 'PRO3'],
+        'facturacion_diaria': [1000, 800, 1200],
         'proyecto_a_optimizar': [True, True, False]})
     
     proyectos.set_index('proyecto_id', inplace=True)
@@ -47,4 +50,6 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
 
     fecha_inicial = periodos['fecha_inicio'].min()
 
-    return proyectos, periodos, muelles, fecha_inicial
+    MOVED_PROJECTS_PENALTY_PER_MOVEMENT = 50
+
+    return proyectos, periodos, muelles, fecha_inicial, MOVED_PROJECTS_PENALTY_PER_MOVEMENT
