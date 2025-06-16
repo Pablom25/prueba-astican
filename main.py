@@ -11,7 +11,7 @@ def optimize():
     restricciones = definir_restricciones(x, y, m, dias, periodos, muelles, proyectos, set_a_optimizar, set_no_optimizar)
     
     prob = resolver_problema(objetivo, restricciones)
-    resultados = crear_dataframe_resultados(x, proyectos, periodos, set_a_optimizar, set_no_optimizar)
+    resultados = crear_dataframe_resultados(x, periodos, set_a_optimizar, set_no_optimizar)
     imprimir_asignacion(prob, x, dias, periodos, muelles)
     print("\nResultados:\n\n", resultados)
 
