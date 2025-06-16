@@ -245,7 +245,7 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
                     if x[(p_k, d-1, loc)].varValue == 0:
                         # Terminar entrada subperiodo anterior
                         data['fecha_fin'].append(pd.to_datetime(d-1, unit='D', origin=fecha_inicial))
-                        data['id_resultado'].append(f"{periodos.loc[p_k, 'proyecto_id']}_{pd.to_datetime(fecha_inicio_actual, unit='D', origin=fecha_inicial)}_{pd.to_datetime(d-1, unit='D', origin=fecha_inicial)}_{loc_actual}")
+                        data['id_resultado'].append(f"{periodos.loc[p_k, 'proyecto_id']}_{fecha_inicio_actual}_{pd.to_datetime(d-1, unit='D', origin=fecha_inicial)}_{loc_actual}")
                         # Comenzar nueva entrada subperiodo
                         data['proyecto_id'].append(periodos.loc[p_k, 'proyecto_id'])
                         data['periodo_id'].append(periodos.loc[p_k, 'periodo_id'])
@@ -259,7 +259,7 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
         if p_k in data['id_proyecto_reparacion']:
             # Terminar entrada último subperiodo
             data['fecha_fin'].append(pd.to_datetime(periodos.loc[p_k, 'fecha_fin'], unit='D', origin=fecha_inicial))
-            data['id_resultado'].append(f"{periodos.loc[p_k, 'proyecto_id']}_{pd.to_datetime(fecha_inicio_actual)}_{pd.to_datetime(periodos.loc[p_k, 'fecha_fin'], unit='D', origin=fecha_inicial)}_{loc_actual}")
+            data['id_resultado'].append(f"{periodos.loc[p_k, 'proyecto_id']}_{fecha_inicio_actual}_{pd.to_datetime(periodos.loc[p_k, 'fecha_fin'], unit='D', origin=fecha_inicial)}_{loc_actual}")
         else:
             # Proyectos sin asignación por optimizador
             data['proyecto_id'].append(periodos.loc[p_k, 'proyecto_id'])
