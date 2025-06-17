@@ -228,9 +228,7 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
             data['ubicacion'].append(loc)
             data['dia'].append(d)
 
-    results = pd.DataFrame(data).sort_values(by=['proyecto_id','periodo_id','ubicacion','dia'])
-
-    resultados = results.groupby(['proyecto_id','periodo_id','id_proyecto_reparacion','ubicacion']).agg(fecha_inicio = ('dia', 'min'), fecha_fin = ('dia', 'max')).reset_index()
+    resultados = pd.DataFrame(data).sort_values(by=['proyecto_id','periodo_id','ubicacion','dia']).groupby(['proyecto_id','periodo_id','id_proyecto_reparacion','ubicacion']).agg(fecha_inicio = ('dia', 'min'), fecha_fin = ('dia', 'max')).reset_index()
 
     for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index:
         if p_k not in list(resultados['id_proyecto_reparacion']):
