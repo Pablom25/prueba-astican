@@ -244,6 +244,6 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
     resultados['fecha_inicio'] = pd.to_datetime(resultados['fecha_inicio'], unit="D", origin = fecha_inicial).dt.date
     resultados['fecha_fin'] = pd.to_datetime(resultados['fecha_fin'], unit="D", origin = fecha_inicial).dt.date
     resultados['id_resultado'] = resultados.apply(lambda row: f"{row['proyecto_id']}_{row['fecha_inicio']}_{row['fecha_fin']}_{row['ubicacion']}", axis=1)
-    resultados = resultados.sort_values(by=['proyecto_id','periodo_id'])
+    resultados = resultados.sort_values(by=['proyecto_id','periodo_id'], ignore_index= True)
 
     return resultados
