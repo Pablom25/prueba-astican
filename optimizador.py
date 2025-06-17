@@ -6,7 +6,7 @@ class Optimizador():
         self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT = optimizador_params["MOVED_PROJECTS_PENALTY_PER_MOVEMENT"]
         self.MAX_MOVEMENTS_PER_PROJECT = optimizador_params["MAX_MOVEMENTS_PER_PROJECT"]
 
-    def _definir_variables(self, periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, dict, dict]:
+    def _definir_variables(self, periodos: pd.DataFrame, set_a_optimizar: set) -> dict:
         """Define las variables de decisión del problema de optimización.
 
         Parameters
@@ -18,12 +18,14 @@ class Optimizador():
 
         Returns
         -------
-        x : dict
-            Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
-        y : dict
-            Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
-        m : dict
-            Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+        variable_set: dict
+            Diccionario con los siguientes diccionarios de variables de decision
+                - 'x' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+                - 'y' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+                - 'm' : dict
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
         """
         
         # Definir variables para cada periodo solo en los días y localizaciones correspondientes
@@ -40,19 +42,27 @@ class Optimizador():
             for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
             for d in periodos.loc[p_k, 'dias']}
         
-        return x, y, m
+        variable_set = {"x": x, "y": y, "m": m}
+        
+        return variable_set
 
-    def _definir_funcion_objetivo(self, x: dict, m: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_a_optimizar: set) -> pulp.LpAffineExpression:
+    def _definir_funcion_objetivo(self, variable_set: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame) -> pulp.LpAffineExpression:
         """Define la función objetivo del problema de optimización.
 
         Parameters
         ----------
-        x : dict
-            Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
-        m : dict
-            Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+        variable_set: dict
+            Diccionario con los siguientes diccionarios de variables de decision
+                - 'x' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+                - 'y' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+                - 'm' : dict
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
         proyectos : pd.DataFrame
             DataFrame con las dimensiones de los proyectos.
+        periodos : pd.DataFrame
+            DataFrame con los periodos de los proyectos.
 
         Returns
         -------
@@ -60,20 +70,22 @@ class Optimizador():
             Expresión lineal que representa la función objetivo a maximizar.
         """
 
-        objetivo = pulp.lpSum(x[p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in x.keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(m.values())
+        objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
 
-    def _definir_restricciones(self, x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
+    def _definir_restricciones(self, variable_set: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
         """Define las restricciones del problema de optimización.
 
         Parameters
         ----------
-        x : dict
-            Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
-        y : dict
-            Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
-        m : dict
-            Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+        variable_set: dict
+            Diccionario con los siguientes diccionarios de variables de decision
+                - 'x' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+                - 'y' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+                - 'm' : dict
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
         dias : list
             Lista de días desde la fecha inicial hasta la fecha final de los periodos.
         periodos : pd.DataFrame
@@ -92,6 +104,11 @@ class Optimizador():
         restricciones : dict
             Diccionario de restricciones del problema de optimización.
         """
+
+        # Unpack diccionario variable_set
+        x = variable_set['x']
+        y = variable_set['y']
+        m = variable_set['m']
 
         # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
         periodos['eslora'] = periodos['proyecto_id'].map(proyectos['eslora'])
@@ -177,15 +194,21 @@ class Optimizador():
 
         return prob
 
-    def _imprimir_asignacion(self, prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame):
+    def _imprimir_asignacion(self, prob: pulp.LpProblem, variable_set: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame):
         """Imprime en pantalla el estado y la solucion
 
         Parameters
         ----------
         prob : pulp.LpProblem
             Objeto LpProblem que representa el problema de optimización.
-        x : dict
-            Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+        variable_set: dict
+            Diccionario con los siguientes diccionarios de variables de decision
+                - 'x' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+                - 'y' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+                - 'm' : dict
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
         dias : list
             Lista de días desde la fecha inicial hasta la fecha final de los periodos.
         periodos : pd.DataFrame
@@ -202,8 +225,8 @@ class Optimizador():
             row = f"{d}\t "
             for m in muelles.index:
                 for p in periodos.index:
-                    if (p,d,m) in x.keys():
-                        if x[(p,d,m)].varValue == 1:
+                    if (p,d,m) in variable_set['x'].keys():
+                        if variable_set['x'][(p,d,m)].varValue == 1:
                             row += f"{p}\t\t"
                             break
                     elif periodos.loc[p, 'nombre_area'] == m and d in periodos.loc[p, 'dias']:
@@ -213,13 +236,19 @@ class Optimizador():
                     row += "N/A\t\t"
             print(row)
 
-    def _crear_dataframe_resultados(self, x: dict, periodos: pd.DataFrame, set_a_optimizar: set, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
+    def _crear_dataframe_resultados(self, variable_set: dict, periodos: pd.DataFrame, set_a_optimizar: set, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
         """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
         Parameters
         ----------
-        x : dict
-            Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+        variable_set: dict
+            Diccionario con los siguientes diccionarios de variables de decision
+                - 'x' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+                - 'y' : dict
+                    Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+                - 'm' : dict
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
         periodos : pd.DataFrame
             DataFrame con los periodos de los proyectos.
         set_a_optimizar : set
@@ -241,8 +270,8 @@ class Optimizador():
             'dia': [],
             }
 
-        for p_k, d, loc in x.keys():
-            if x[(p_k, d, loc)].varValue == 1:
+        for p_k, d, loc in variable_set['x'].keys():
+            if variable_set['x'][(p_k, d, loc)].varValue == 1:
                 data['proyecto_id'].append(periodos.loc[p_k, 'proyecto_id'])
                 data['periodo_id'].append(periodos.loc[p_k, 'periodo_id'])
                 data['id_proyecto_reparacion'].append(p_k)
@@ -299,12 +328,12 @@ class Optimizador():
         set_a_optimizar = set(proyectos[proyectos['proyecto_a_optimizar']].index)
         set_no_optimizar = set(proyectos[~proyectos['proyecto_a_optimizar']].index)
     
-        x, y, m = self._definir_variables(periodos, set_a_optimizar)
-        objetivo = self._definir_funcion_objetivo(x, m, proyectos, periodos, set_a_optimizar)
-        restricciones = self._definir_restricciones(x, y, m, dias, periodos, muelles, proyectos, set_a_optimizar, set_no_optimizar)
+        variable_set = self._definir_variables(periodos, set_a_optimizar)
+        objetivo = self._definir_funcion_objetivo(variable_set, proyectos, periodos)
+        restricciones = self._definir_restricciones(variable_set, dias, periodos, muelles, proyectos, set_a_optimizar, set_no_optimizar)
         
         prob = self._resolver_problema(objetivo, restricciones)
-        self._imprimir_asignacion(prob, x, dias, periodos, muelles)
-        resultados = self._crear_dataframe_resultados(x, periodos, set_a_optimizar, fecha_inicial)
+        self._imprimir_asignacion(prob, variable_set, dias, periodos, muelles)
+        resultados = self._crear_dataframe_resultados(variable_set, periodos, set_a_optimizar, fecha_inicial)
 
         return resultados
