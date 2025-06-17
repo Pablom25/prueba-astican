@@ -192,7 +192,7 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
 
 # Dataframe de resultados
 
-def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
+def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar: set, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
     """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
     Parameters
@@ -203,8 +203,6 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
         DataFrame con los periodos de los proyectos.
     set_a_optimizar : set
         Set de proyectos a optimizar.
-    set_no_optimizar : set
-        Set de proyectos que no optimizar.
     fecha_inicial : pd.Timestamp
         Fecha inicial del primer periodo de los proyectos.
     
