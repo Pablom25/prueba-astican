@@ -1,6 +1,6 @@
 import pandas as pd
 
-def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, fecha_inicial: pd.Timestamp) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list, set, set]:
+def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, fecha_inicial: pd.Timestamp) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, list]:
     """Preprocesa los datos de proyectos, periodos y muelles para su uso en la optimización.
 
     Parameters
@@ -24,10 +24,6 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         DataFrame con las dimensiones de los muelles.
     dias : list
         Lista de días desde la fecha inicial hasta la fecha final de los periodos.
-    set_a_optimizar : set
-        Set de proyectos a optimizar.
-    set_no_optimizar : set
-        Set de proyectos que no optimizar.
     """
 
     # Convertir fechas a integer
@@ -37,10 +33,6 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     # Crear una lista de días
     dias = list(range(periodos['fecha_inicio'].min(), periodos['fecha_fin'].max()+1))
 
-    # Crear set de proyectos confirmados y sin confirmar
-    set_a_optimizar = set(proyectos[proyectos['proyecto_a_optimizar']].index)
-    set_no_optimizar = set(proyectos[~proyectos['proyecto_a_optimizar']].index)
-
     # Columna de dias y localizaciones disponibles
     periodos['ubicaciones'] = periodos.apply(lambda row: row['nombre_area'] if row['nombre_area'] != 'SIN UBICACION ASIGNADA' 
                                              else [m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora'] and 
@@ -48,4 +40,4 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     
     periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)), axis=1)
 
-    return proyectos, periodos, muelles, dias, set_a_optimizar, set_no_optimizar
+    return proyectos, periodos, muelles, dias

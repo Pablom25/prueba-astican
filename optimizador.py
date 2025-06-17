@@ -62,7 +62,7 @@ def definir_funcion_objetivo(x: dict, m: dict, proyectos: pd.DataFrame, periodos
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
+def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set, MAX_MOVEMENTS_PER_PROJECT: int) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -85,6 +85,8 @@ def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.Da
         Set de proyectos a optimizar.
     set_no_optimizar : set
         Set de proyectos que no optimizar.
+    MAX_MOVEMENTS_PER_PROJECT : int
+        Máximo número de movimientos por proyecto
     
     Returns
     -------
@@ -139,6 +141,15 @@ def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.Da
         }
     )
 
+    # Cada proyecto aolo puede ser movido MAX_MOVEMENTS_PER_PROJECT en todo el tiempo que se está reprando en el astillero
+    restricciones.update(
+        {
+            f"Max_n_movimentos_{p}": (pulp.lpSum(m[(p_k, d)] for p_k in periodos[periodos["proyecto_id"] == p].index if len(periodos.loc[p_k, 'ubicaciones']) > 1 for d in periodos.loc[p_k, 'dias']) <= MAX_MOVEMENTS_PER_PROJECT,
+            f"Max_n_movimentos_{p}")
+            for p in proyectos[proyectos['proyecto_a_optimizar']].index
+        }
+    )
+
     return restricciones
 
 
@@ -147,14 +158,14 @@ def resolver_problema(objetivo: pulp.LpAffineExpression, restricciones: dict) ->
 
     Parameters
     ----------
-    objetivo : LpAffineExpression
+    objetivo : pulp.LpAffineExpression
         Expresión lineal que representa la función objetivo a maximizar.
     restricciones : dict
         Diccionario de restricciones del problema de optimización.
    
     Returns
     -------
-    prob : LpProblem
+    prob : pulp.LpProblem
         Objeto LpProblem que representa el problema de optimización.
     """
 
@@ -169,11 +180,26 @@ def resolver_problema(objetivo: pulp.LpAffineExpression, restricciones: dict) ->
     return prob
 
 
-def imprimir_asignacion(prob, x, dias, periodos, muelles):
+def imprimir_asignacion(prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame):
+    """Imprime en pantalla el estado y la solucion
+
+    Parameters
+    ----------
+    prob : pulp.LpProblem
+        Objeto LpProblem que representa el problema de optimización.
+    x : dict
+        Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+    dias : list
+        Lista de días desde la fecha inicial hasta la fecha final de los periodos.
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    muelles : pd.DataFrame
+        DataFrame con las dimensiones de los muelles.
+    """
     
-    print("Estado de la solución:", pulp.LpStatus[prob.status])
     print("\nAsignación de Proyectos a Muelles:\n")
-    print("Día\t", "\t".join(muelles.index))
+    print("Estado de la solucion:", pulp.LpStatus[prob.status])
+    print("\nDía\t", "\t".join(muelles.index))
 
     for d in dias:
         row = f"{d}\t "
@@ -245,5 +271,45 @@ def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar:
     resultados['fecha_fin'] = pd.to_datetime(resultados['fecha_fin'], unit="D", origin = fecha_inicial).dt.date
     resultados['id_resultado'] = resultados.apply(lambda row: f"{row['proyecto_id']}_{row['fecha_inicio']}_{row['fecha_fin']}_{row['ubicacion']}", axis=1)
     resultados = resultados.sort_values(by=['proyecto_id','periodo_id'], ignore_index= True)
+
+    return resultados
+
+def optimize(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, dias: list, fecha_inicial: pd.Timestamp, MOVED_PROJECTS_PENALTY_PER_MOVEMENT: int, MAX_MOVEMENTS_PER_PROJECT: int) -> pd.DataFrame:
+    """Optimiza y crea un DataFrame con los resultados de la asignación de periodos a muelles.
+
+    Parameters
+    ----------
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    muelles : pd.DataFrame
+        DataFrame con las dimensiones de los muelles.
+    dias : list
+        Lista de días desde la fecha inicial hasta la fecha final de los periodos.
+    fecha_inicial : pd.Timestamp
+        Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
+    MOVED_PROJECTS_PENALTY_PER_MOVEMENT : int
+        Penalización por cada movimiento de un barco a otro muelle en un periodo.
+    MAX_MOVEMENTS_PER_PROJECT : int
+        Máximo número de movimientos por proyecto
+    
+    Returns
+    -------
+    resultados : pd.DataFrame
+        DataFrame con la asignación de periodos a muelles, incluyendo proyecto_id, periodo_id, ubicación, fecha_inicio y fecha_fin.
+    """
+
+    # Crear set de proyectos confirmados y sin confirmar
+    set_a_optimizar = set(proyectos[proyectos['proyecto_a_optimizar']].index)
+    set_no_optimizar = set(proyectos[~proyectos['proyecto_a_optimizar']].index)
+ 
+    x, y, m = definir_variables(periodos, set_a_optimizar)
+    objetivo = definir_funcion_objetivo(x, m, proyectos, periodos, set_a_optimizar, MOVED_PROJECTS_PENALTY_PER_MOVEMENT)
+    restricciones = definir_restricciones(x, y, m, dias, periodos, muelles, proyectos, set_a_optimizar, set_no_optimizar, MAX_MOVEMENTS_PER_PROJECT)
+    
+    prob = resolver_problema(objetivo, restricciones)
+    imprimir_asignacion(prob, x, dias, periodos, muelles)
+    resultados = crear_dataframe_resultados(x, periodos, set_a_optimizar, fecha_inicial)
 
     return resultados
