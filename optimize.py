@@ -1,17 +1,13 @@
 import pandas as pd
 import pulp
 
-def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, dict]:
+def definir_variables(periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, dict, dict]:
     """Define las variables de decisión del problema de optimización.
 
     Parameters
     ----------
-    proyectos : pd.DataFrame
-        DataFrame con las dimensiones de los proyectos.
     periodos : pd.DataFrame
         DataFrame con los periodos de los proyectos.
-    muelles : pd.DataFrame
-        DataFrame con las dimensiones de los muelles.
     set_a_optimizar : set
         Set de proyectos a optimizar.
 
@@ -21,28 +17,40 @@ def definir_variables(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
     y : dict
         Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+    m : dict
+        Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
     """
     
     # Definir variables para cada periodo solo en los días y localizaciones correspondientes
 
-    x = {(p, d, loc): pulp.LpVariable(f"x_{p}_{d}_{loc}",(p, d, loc), cat='Binary')
-         for p in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index
-         for d in periodos.loc[p, 'dias']
-         for loc in periodos.loc[p, 'ubicaciones']}
+    x = {(p_k, d, loc): pulp.LpVariable(f"x_{p_k}_{d}_{loc}",(p_k, d, loc), cat='Binary')
+         for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index
+         for d in periodos.loc[p_k, 'dias']
+         for loc in periodos.loc[p_k, 'ubicaciones']}
     
     y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
          for p in set_a_optimizar}
     
-    return x, y
+    m = {(p_k, d): pulp.LpVariable(f"m_{p_k}_{d}", (p_k, d), cat='Binary')
+         for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
+         for d in periodos.loc[p_k, 'dias']}
+    
+    return x, y, m
 
 
-def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
+def definir_funcion_objetivo(x: dict, m: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_a_optimizar: set, MOVED_PROJECTS_PENALTY_PER_MOVEMENT: int) -> pulp.LpAffineExpression:
     """Define la función objetivo del problema de optimización.
 
     Parameters
     ----------
     x : dict
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
+    m : dict
+        Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    MOVED_PROJECTS_PENALTY_PER_MOVEMENT : int
+        Penalización por cada movimiento de un barco a otro muelle en un periodo.
 
     Returns
     -------
@@ -50,11 +58,11 @@ def definir_funcion_objetivo(x: dict) -> pulp.LpAffineExpression:
         Expresión lineal que representa la función objetivo a maximizar.
     """
 
-    objetivo = pulp.lpSum(x.values())
+    objetivo = pulp.lpSum(x[p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in x.keys()) - MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(m.values())
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_no_optimizar: dict) -> dict:
+def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -63,6 +71,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
     y : dict
         Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
+    m : dict
+        Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
     dias : list
         Lista de días desde la fecha inicial hasta la fecha final de los periodos.
     periodos : pd.DataFrame
@@ -71,6 +81,8 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
         DataFrame con las dimensiones de los muelles.
     proyectos : pd.DataFrame
         DataFrame con las dimensiones de los proyectos.
+    set_a_optimizar : set
+        Set de proyectos a optimizar.
     set_no_optimizar : set
         Set de proyectos que no optimizar.
     
@@ -103,6 +115,27 @@ def definir_restricciones(x: dict, y: dict, dias: list, periodos: pd.DataFrame, 
             f"Longitud_Muelle_{d}_{loc}")
             for loc in muelles.index
             for d in dias
+        }
+    )
+
+    # m es igual a uno para un periodo en un día d si en d-1 está en un muelle diferente, si no es cero
+    restricciones.update(
+        {
+            f"Movimiento_{p_k}_{d}_{loc}_mayor": (m[(p_k, d)] >= x[(p_k, d, loc)] - x[(p_k, d-1, loc)],
+            f"Movimiento_{p_k}_{d}_{loc}_mayor")
+            for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
+            for d in periodos.loc[p_k, 'dias'][1:]  # Comenzar desde el segundo día para evitar d-1 fuera de rango
+            for loc in periodos.loc[p_k, 'ubicaciones']
+        }
+    )
+
+    restricciones.update(
+        {
+            f"Movimiento_{p_k}_{d}_{loc}_menor": (m[(p_k, d)] <= 2 - x[(p_k, d, loc)] - x[(p_k, d-1, loc)],
+            f"Movimiento_{p_k}_{d}_{loc}_menor")
+            for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
+            for d in periodos.loc[p_k, 'dias'][1:]  # Comenzar desde el segundo día para evitar d-1 fuera de rango
+            for loc in periodos.loc[p_k, 'ubicaciones']
         }
     )
 
@@ -159,21 +192,19 @@ def imprimir_asignacion(prob, x, dias, periodos, muelles):
 
 # Dataframe de resultados
 
-def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> pd.DataFrame:
+def crear_dataframe_resultados(x: dict, periodos: pd.DataFrame, set_a_optimizar: set, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
     """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
     Parameters
     ----------
     x : dict
         Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
-    proyectos : pd.DataFrame
-        DataFrame con las dimensiones de los proyectos.
     periodos : pd.DataFrame
         DataFrame con los periodos de los proyectos.
     set_a_optimizar : set
         Set de proyectos a optimizar.
-    set_no_optimizar : set
-        Set de proyectos que no optimizar.
+    fecha_inicial : pd.Timestamp
+        Fecha inicial del primer periodo de los proyectos.
     
     Returns
     -------
@@ -184,42 +215,35 @@ def crear_dataframe_resultados(x: dict, proyectos: pd.DataFrame, periodos: pd.Da
     data = {
         'proyecto_id': [],
         'periodo_id': [],
-        'ubicación': [],
-        'fecha_inicio': [],
-        'fecha_fin': [],
-        'id_proyecto_reparacion': []}
-    
-    for p in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index:
-        for loc in periodos.loc[p, 'ubicaciones']:
-            if x[(p, periodos.loc[p, 'dias'][0], loc)].varValue == 1:
-                # Proyectos asignados por optimizador
-                data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
-                data['periodo_id'].append(periodos.loc[p, 'periodo_id'])
-                data['ubicación'].append(loc)
-                data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
-                data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
-                data['id_proyecto_reparacion'].append(p)
-                break
-        
-        # Proyectos sin asignación por optimizador
-        if p not in data['id_proyecto_reparacion']:
-            data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
-            data['periodo_id'].append(periodos.loc[p, 'periodo_id'])
-            data['ubicación'].append(periodos.loc[p, 'nombre_area'])
-            data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
-            data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
-            data['id_proyecto_reparacion'].append(p)
-    
-    # Proyectos confirmados
-    for p in periodos[periodos["proyecto_id"].isin(set_no_optimizar)].index:
-        data['proyecto_id'].append(periodos.loc[p, 'proyecto_id'])
-        data['periodo_id'].append(periodos.loc[p, 'periodo_id'])
-        data['ubicación'].append(periodos.loc[p, 'nombre_area'])
-        data['fecha_inicio'].append(pd.to_datetime(periodos.loc[p, 'fecha_inicio'], unit='D', origin='2025-08-08'))
-        data['fecha_fin'].append(pd.to_datetime(periodos.loc[p, 'fecha_fin'], unit='D', origin='2025-08-08'))
-        data['id_proyecto_reparacion'].append(p)
+        'id_proyecto_reparacion': [],
+        'ubicacion': [],
+        'dia': [],
+        }
 
-    resultados = pd.DataFrame(data)
-    resultados.set_index('id_proyecto_reparacion', inplace=True)
+    for p_k, d, loc in x.keys():
+        if x[(p_k, d, loc)].varValue == 1:
+            data['proyecto_id'].append(periodos.loc[p_k, 'proyecto_id'])
+            data['periodo_id'].append(periodos.loc[p_k, 'periodo_id'])
+            data['id_proyecto_reparacion'].append(p_k)
+            data['ubicacion'].append(loc)
+            data['dia'].append(d)
+
+    resultados = pd.DataFrame(data).sort_values(by=['proyecto_id','periodo_id','ubicacion','dia']).groupby(['proyecto_id','periodo_id','id_proyecto_reparacion','ubicacion']).agg(fecha_inicio = ('dia', 'min'), fecha_fin = ('dia', 'max')).reset_index()
+
+    for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index:
+        if p_k not in list(resultados['id_proyecto_reparacion']):
+            resultados.loc[len(resultados)] = {
+            'proyecto_id': periodos.loc[p_k, 'proyecto_id'],
+            'periodo_id': periodos.loc[p_k, 'periodo_id'],
+            'id_proyecto_reparacion': p_k,
+            'ubicacion': periodos.loc[p_k, 'nombre_area'],
+            'fecha_inicio': periodos.loc[p_k, 'fecha_inicio'],
+            'fecha_fin': periodos.loc[p_k, 'fecha_fin']
+            }
+
+    resultados['fecha_inicio'] = pd.to_datetime(resultados['fecha_inicio'], unit="D", origin = fecha_inicial).dt.date
+    resultados['fecha_fin'] = pd.to_datetime(resultados['fecha_fin'], unit="D", origin = fecha_inicial).dt.date
+    resultados['id_resultado'] = resultados.apply(lambda row: f"{row['proyecto_id']}_{row['fecha_inicio']}_{row['fecha_fin']}_{row['ubicacion']}", axis=1)
+    resultados = resultados.sort_values(by=['proyecto_id','periodo_id'], ignore_index= True)
 
     return resultados
