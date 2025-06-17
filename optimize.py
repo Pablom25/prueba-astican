@@ -62,7 +62,7 @@ def definir_funcion_objetivo(x: dict, m: dict, proyectos: pd.DataFrame, periodos
     return objetivo
 
 
-def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
+def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set, MAX_MOVEMENTS_PER_PROJECT: int) -> dict:
     """Define las restricciones del problema de optimización.
 
     Parameters
@@ -85,6 +85,8 @@ def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.Da
         Set de proyectos a optimizar.
     set_no_optimizar : set
         Set de proyectos que no optimizar.
+    MAX_MOVEMENTS_PER_PROJECT : int
+        Máximo número de movimientos por proyecto
     
     Returns
     -------
@@ -136,6 +138,15 @@ def definir_restricciones(x: dict, y: dict, m: dict, dias: list, periodos: pd.Da
             for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
             for d in periodos.loc[p_k, 'dias'][1:]  # Comenzar desde el segundo día para evitar d-1 fuera de rango
             for loc in periodos.loc[p_k, 'ubicaciones']
+        }
+    )
+
+    # Cada proyecto aolo puede ser movido MAX_MOVEMENTS_PER_PROJECT en todo el tiempo que se está reprando en el astillero
+    restricciones.update(
+        {
+            f"Max_n_movimentos_{p}": (pulp.lpSum(m[(p_k, d)] for p_k in periodos[periodos["proyecto_id"] == p].index if len(periodos.loc[p_k, 'ubicaciones']) > 1 for d in periodos.loc[p_k, 'dias']) <= MAX_MOVEMENTS_PER_PROJECT,
+            f"Max_n_movimentos_{p}")
+            for p in proyectos[proyectos['proyecto_a_optimizar']].index
         }
     )
 
