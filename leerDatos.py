@@ -12,7 +12,7 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
         DataFrame con los periodos de los proyectos.
     muelles : pd.DataFrame
         DataFrame con las dimensiones de los muelles.
-    fecha_inicial : str
+    fecha_inicial : pd.Timestamp
         Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
     MOVED_PROJECTS_PENALTY_PER_MOVEMENT : int
         Penalización por cada movimiento de un barco a otro muelle en un periodo.
