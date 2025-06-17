@@ -1,5 +1,5 @@
 import pandas as pd
-
+import json
 
 def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp, int, int]:
     """Crea DataFrames con los datos de los proyectos, periodos y muelles; y la fecha inicial.
@@ -14,10 +14,6 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
         DataFrame con las dimensiones de los muelles.
     fecha_inicial : pd.Timestamp
         Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
-    MOVED_PROJECTS_PENALTY_PER_MOVEMENT : int
-        Penalización por cada movimiento de un barco a otro muelle en un periodo.
-    MAX_MOVEMENTS_PER_PROJECT : int
-        Máximo número de movimientos por proyecto
     """    
 
     # Aquí lógica para leer los datos desde un archivo o base de datos
@@ -52,8 +48,22 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp
 
     fecha_inicial = periodos['fecha_inicio'].min()
 
-    MOVED_PROJECTS_PENALTY_PER_MOVEMENT = 50
+    return proyectos, periodos, muelles, fecha_inicial
 
-    MAX_MOVEMENTS_PER_PROJECT = 2
+def leer_parametros(path: str) -> dict:
+    """Lee optimizer.json y devuelve un diccionario con los parámetros
 
-    return proyectos, periodos, muelles, fecha_inicial, MOVED_PROJECTS_PENALTY_PER_MOVEMENT, MAX_MOVEMENTS_PER_PROJECT
+    Parameters
+    ----------
+    path : str
+        path de optimizer.json
+
+    Returns
+    -------
+    dict
+        diccionario con los parámetros para el optimizador
+    """    
+
+    with open(path, 'r') as f:
+        optimizador_params = json.load(f)
+    return optimizador_params
