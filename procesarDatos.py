@@ -1,6 +1,6 @@
 import pandas as pd
 
-def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, calles: pd.DataFrame, fecha_inicial: pd.Timestamp) -> tuple[pd.DataFrame, list]:
+def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, calles: pd.DataFrame, fecha_inicial: pd.Timestamp, syncrolift_dims: dict) -> tuple[pd.DataFrame, list]:
     """Preprocesa los datos de proyectos, periodos y muelles para su uso en la optimización.
 
     Parameters
@@ -15,7 +15,8 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
         DataFrame con las dimensiones de las calles.
     fecha_inicial : str
         Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'.
-    
+    syncrolift_dims : dict
+        Diccionario de dimensiones del syncrolift    
     Returns
     -------
     periodos : pd.DataFrame
@@ -38,8 +39,10 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
                                              else [m for m in muelles.index if (muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora'] and 
                                                                                 muelles.loc[m, 'ancho'] >= proyectos.loc[row['proyecto_id'], 'manga'])]
                                                                                 if row['tipo_desc'] == 'FLOTE'
-                                             else [c for c in calles.index if (calles.loc[c, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora'] and 
-                                                                                calles.loc[c, 'ancho'] >= proyectos.loc[row['proyecto_id'], 'manga'])], axis=1)
+                                             else [c for c in calles.index if (proyectos.loc[row['proyecto_id'], 'eslora'] <= calles.loc[c, 'longitud'] and 
+                                                                                proyectos.loc[row['proyecto_id'], 'manga'] <= calles.loc[c, 'ancho'] and
+                                                                                proyectos.loc[row['proyecto_id'], 'eslora'] <= syncrolift_dims['longitud'] and
+                                                                                proyectos.loc[row['proyecto_id'], 'manga'] <= syncrolift_dims['ancho'])], axis=1)
     
     periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)), axis=1)
 

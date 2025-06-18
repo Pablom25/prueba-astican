@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp, int, int]:
+def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp, int, int, dict]:
     """Crea DataFrames con los datos de los proyectos, periodos y muelles; y la fecha inicial.
 
     Returns
@@ -16,6 +16,8 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
         DataFrame con las dimensiones de las calles.
     fecha_inicial : pd.Timestamp
         Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
+    syncrolift_dims : dict
+        Diccionario de dimensiones del syncrolift
     """    
 
     # Aquí lógica para leer los datos desde un archivo o base de datos
@@ -55,9 +57,11 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
     
     calles.set_index('nombre', inplace=True)
 
+    syncrolift_dims = {'longitud': 180, 'ancho': 22}
+
     fecha_inicial = periodos['fecha_inicio'].min()
 
-    return proyectos, periodos, muelles, calles, fecha_inicial
+    return proyectos, periodos, muelles, calles, fecha_inicial, syncrolift_dims
 
 def leer_parametros(path: str) -> dict:
     """Lee optimizer.json y devuelve un diccionario con los parámetros
