@@ -25,19 +25,20 @@ class Optimizador():
                 - 'y' : dict
                     Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
                 - 'm' : dict
-                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro o de una calle a otra en un día específico.
         """
         
-        # Definir variables para cada periodo solo en los días y localizaciones correspondientes
-
+        # Definir variables binarias para cada periodo solo en los días y localizaciones correspondientes
         x = {(p_k, d, loc): pulp.LpVariable(f"x_{p_k}_{d}_{loc}",(p_k, d, loc), cat='Binary')
             for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index
             for d in periodos.loc[p_k, 'dias']
             for loc in periodos.loc[p_k, 'ubicaciones']}
         
+        # Variables binarias para cada proyecto a optimizar (asignado o no)
         y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
             for p in set_a_optimizar}
         
+        # Variable movimiento para muelles
         m = {(p_k, d): pulp.LpVariable(f"m_{p_k}_{d}", (p_k, d), cat='Binary')
             for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
             for d in periodos.loc[p_k, 'dias']}
@@ -58,7 +59,7 @@ class Optimizador():
                 - 'y' : dict
                     Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
                 - 'm' : dict
-                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro o de una calle a otra en un día específico.
         proyectos : pd.DataFrame
             DataFrame con las dimensiones de los proyectos.
         periodos : pd.DataFrame
@@ -73,7 +74,7 @@ class Optimizador():
         objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
 
-    def _definir_restricciones(self, variable_set: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
+    def _definir_restricciones(self, variable_set: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
         """Define las restricciones del problema de optimización.
 
         Parameters
@@ -85,13 +86,13 @@ class Optimizador():
                 - 'y' : dict
                     Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
                 - 'm' : dict
-                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro en un día específico.
+                    Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro o de una calle a otra en un día específico.
         dias : list
             Lista de días desde la fecha inicial hasta la fecha final de los periodos.
         periodos : pd.DataFrame
             DataFrame con los periodos de los proyectos.
-        muelles : pd.DataFrame
-            DataFrame con las dimensiones de los muelles.
+        ubicaciones : pd.DataFrame  
+            DataFrame con las dimensiones de los muelles y de las calles.
         proyectos : pd.DataFrame
             DataFrame con las dimensiones de los proyectos.
         set_a_optimizar : set
@@ -111,7 +112,7 @@ class Optimizador():
 
         restricciones = {}
 
-        # Cada día del periodo debe estar asignado exactamente a un muelle si y[p] = 1 y a ninguno si y[p] = 0
+        # Cada día del periodo debe estar asignado exactamente a un muelle/calle si y[p] = 1 y a ninguno si y[p] = 0
         restricciones.update(
             {
                 f"Asignacion_{p_k}_{d}": (pulp.lpSum(variable_set['x'][(p_k, d, loc)] for loc in periodos.loc[p_k, 'ubicaciones']) == variable_set['y'][p], f"Asignacion{p_k}_{d}")
@@ -121,17 +122,17 @@ class Optimizador():
             }
         )
 
-        # Los barcos en el mismo muelle no pueden exceder la longitud del muelle
+        # Los barcos en el mismo muelle no pueden exceder la longitud del muelle/calle
         restricciones.update(
             {
-                f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(variable_set['x'].get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= muelles.loc[loc, 'longitud'], 
+                f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(variable_set['x'].get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= ubicaciones.loc[loc, 'longitud'], 
                 f"Longitud_Muelle_{d}_{loc}")
-                for loc in muelles.index
+                for loc in ubicaciones.index
                 for d in dias
             }
         )
 
-        # m es igual a uno para un periodo en un día d si en d-1 está en un muelle diferente, si no es cero
+        # m es igual a uno para un periodo en un día d si en d-1 está en un muelle/calle diferente, si no es cero
         restricciones.update(
             {
                 f"Movimiento_{p_k}_{d}_{loc}_mayor": (variable_set['m'][(p_k, d)] >= variable_set['x'][(p_k, d, loc)] - variable_set['x'][(p_k, d-1, loc)],
@@ -152,7 +153,7 @@ class Optimizador():
             }
         )
 
-        # Cada proyecto aolo puede ser movido MAX_MOVEMENTS_PER_PROJECT en todo el tiempo que se está reprando en el astillero
+        # Cada proyecto solo puede ser movido MAX_MOVEMENTS_PER_PROJECT en todo el tiempo que se está reprando en el astillero
         restricciones.update(
             {
                 f"Max_n_movimentos_{p}": (pulp.lpSum(variable_set['m'][(p_k, d)] for p_k in periodos[periodos["proyecto_id"] == p].index if len(periodos.loc[p_k, 'ubicaciones']) > 1 for d in periodos.loc[p_k, 'dias']) <= self.MAX_MOVEMENTS_PER_PROJECT,
@@ -189,7 +190,7 @@ class Optimizador():
 
         return prob
 
-    def _imprimir_asignacion(self, prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, muelles: pd.DataFrame):
+    def _imprimir_asignacion(self, prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame):
         """Imprime en pantalla el estado y la solucion
 
         Parameters
@@ -202,23 +203,23 @@ class Optimizador():
             Lista de días desde la fecha inicial hasta la fecha final de los periodos.
         periodos : pd.DataFrame
             DataFrame con los periodos de los proyectos.
-        muelles : pd.DataFrame
-            DataFrame con las dimensiones de los muelles.
+        ubicaciones : pd.DataFrame  
+            DataFrame con las dimensiones de los muelles y de las calles.
         """
         
         print("\nAsignación de Proyectos a Muelles:\n")
         print("Estado de la solucion:", pulp.LpStatus[prob.status])
-        print("\nDía\t", "\t".join(muelles.index))
+        print("\nDía\t", "\t".join(ubicaciones.index))
 
         for d in dias:
             row = f"{d}\t "
-            for m in muelles.index:
+            for loc in ubicaciones.index:
                 for p in periodos.index:
-                    if (p,d,m) in x.keys():
-                        if x[(p,d,m)].varValue == 1:
+                    if (p,d,loc) in x.keys():
+                        if x[(p,d,loc)].varValue == 1:
                             row += f"{p}\t\t"
                             break
-                    elif periodos.loc[p, 'nombre_area'] == m and d in periodos.loc[p, 'dias']:
+                    elif periodos.loc[p, 'nombre_area'] == loc and d in periodos.loc[p, 'dias']:
                         row += f"{p}\t\t"
                         break
                 else:
@@ -281,7 +282,7 @@ class Optimizador():
 
         return resultados
 
-    def optimize(self, proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, dias: list, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
+    def optimize(self, proyectos: pd.DataFrame, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, dias: list, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
         """Optimiza y crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
         Parameters
@@ -290,8 +291,8 @@ class Optimizador():
             DataFrame con las dimensiones de los proyectos.
         periodos : pd.DataFrame
             DataFrame con los periodos de los proyectos.
-        muelles : pd.DataFrame
-            DataFrame con las dimensiones de los muelles.
+        ubicaciones : pd.DataFrame  
+            DataFrame con las dimensiones de los muelles y de las calles.
         dias : list
             Lista de días desde la fecha inicial hasta la fecha final de los periodos.
         fecha_inicial : pd.Timestamp
@@ -313,10 +314,10 @@ class Optimizador():
     
         variable_set = self._definir_variables(periodos, set_a_optimizar)
         objetivo = self._definir_funcion_objetivo(variable_set, proyectos, periodos)
-        restricciones = self._definir_restricciones(variable_set, dias, periodos, muelles, proyectos, set_a_optimizar, set_no_optimizar)
+        restricciones = self._definir_restricciones(variable_set, dias, periodos, ubicaciones, proyectos, set_a_optimizar, set_no_optimizar)
         
         prob = self._resolver_problema(objetivo, restricciones)
-        self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, muelles)
+        self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones)
         resultados = self._crear_dataframe_resultados(variable_set['x'], periodos, set_a_optimizar, fecha_inicial)
 
         return resultados
