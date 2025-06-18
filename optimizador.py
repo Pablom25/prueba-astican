@@ -5,6 +5,7 @@ class Optimizador():
     def __init__(self, optimizador_params):
         self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT = optimizador_params["MOVED_PROJECTS_PENALTY_PER_MOVEMENT"]
         self.MAX_MOVEMENTS_PER_PROJECT = optimizador_params["MAX_MOVEMENTS_PER_PROJECT"]
+        self.MAX_USES_SYNCROLIFT_PER_DAY = optimizador_params["MAX_USES_SYNCROLIFT_PER_DAY"]
 
     def _definir_variables(self, periodos: pd.DataFrame, set_a_optimizar: set) -> dict:
         """Define las variables de decisión del problema de optimización.
@@ -26,6 +27,8 @@ class Optimizador():
                     Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
                 - 'm' : dict
                     Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro o de una calle a otra en un día específico.
+                - 's': dict
+                    Diccionario de variables binarias que indican si un proyecto se mueve de un muelle a una calle o viceversa en un día específico.
         """
         
         # Definir variables binarias para cada periodo solo en los días y localizaciones correspondientes
@@ -38,12 +41,18 @@ class Optimizador():
         y = {p: pulp.LpVariable(f"y_{p}", p, cat='Binary')
             for p in set_a_optimizar}
         
-        # Variable movimiento para muelles
+        # Variable movimiento para muelles/calles
         m = {(p_k, d): pulp.LpVariable(f"m_{p_k}_{d}", (p_k, d), cat='Binary')
             for p_k in periodos[periodos["proyecto_id"].isin(set_a_optimizar)].index if len(periodos.loc[p_k, 'ubicaciones']) > 1
             for d in periodos.loc[p_k, 'dias']}
+
+        # Variable movimiento syncrolift
+        s = {(p, d): pulp.LpVariable(f"s_{p}_{d}", (p, d), cat='Binary')
+            for p in set_a_optimizar
+            for p_k in periodos[periodos["proyecto_id"] == p].index if periodos.loc[p_k, 'tipo_desc'] == 'VARADA'
+            for d in [periodos.loc[p_k, 'dias'][0], periodos.loc[p_k, 'dias'][-1]]}
         
-        variable_set = {"x": x, "y": y, "m": m}
+        variable_set = {"x": x, "y": y, "m": m, "s": s}
         
         return variable_set
 
@@ -60,6 +69,8 @@ class Optimizador():
                     Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
                 - 'm' : dict
                     Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro o de una calle a otra en un día específico.
+                - 's': dict
+                    Diccionario de variables binarias que indican si un proyecto se mueve de un muelle a una calle o viceversa en un día específico.
         proyectos : pd.DataFrame
             DataFrame con las dimensiones de los proyectos.
         periodos : pd.DataFrame
@@ -87,6 +98,8 @@ class Optimizador():
                     Diccionario de variables binarias que indican si un periodo está asignado (1) o no (0).
                 - 'm' : dict
                     Diccionario de variables binarias que indican si un periodo se mueve de un muelle a otro o de una calle a otra en un día específico.
+                - 's': dict
+                    Diccionario de variables binarias que indican si un proyecto se mueve de un muelle a una calle o viceversa en un día específico.
         dias : list
             Lista de días desde la fecha inicial hasta la fecha final de los periodos.
         periodos : pd.DataFrame
@@ -159,6 +172,24 @@ class Optimizador():
                 f"Max_n_movimentos_{p}": (pulp.lpSum(variable_set['m'][(p_k, d)] for p_k in periodos[periodos["proyecto_id"] == p].index if len(periodos.loc[p_k, 'ubicaciones']) > 1 for d in periodos.loc[p_k, 'dias']) <= self.MAX_MOVEMENTS_PER_PROJECT,
                 f"Max_n_movimentos_{p}")
                 for p in proyectos[proyectos['proyecto_a_optimizar']].index
+            }
+        )
+
+        # Todo s[p,d] es igual a 1 si el proyecto está asignado (y[p] = 1)
+        restricciones.update(
+            {
+                f"Definicion_syncrolift_{p}_{d}": (variable_set['s'][(p, d)] == variable_set['y'][p],
+                f"Definicion_syncrolift_{p}_{d}")
+                for p, d in variable_set['s'].keys()
+            }
+        )
+
+        # Cada día solo puede haber MAX_USES_SYNCROLIFT_PER_DAY usos del syncrolift
+        restricciones.update(
+            {
+                f"Max_usos_syncrolift_{d}": (pulp.lpSum(variable_set['s'].get((p, d), 0) for p in set_a_optimizar) <= self.MAX_USES_SYNCROLIFT_PER_DAY,
+                f"Max_usos_syncrolift_{d}")
+                for d in dias
             }
         )
 
