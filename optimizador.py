@@ -50,7 +50,7 @@ class Optimizador():
         s = {(p, d): pulp.LpVariable(f"s_{p}_{d}", (p, d), cat='Binary')
             for p in set_a_optimizar
             for p_k in periodos[periodos["proyecto_id"] == p].index if periodos.loc[p_k, 'tipo_desc'] == 'VARADA'
-            for d in [periodos.loc[p_k, 'dias'][0], periodos.loc[p_k, 'dias'][-1]]}
+            for d in [periodos.loc[p_k, 'fecha_inicio'], periodos.loc[p_k, 'fecha_fin']]}
         
         variable_set = {"x": x, "y": y, "m": m, "s": s}
         
@@ -122,6 +122,14 @@ class Optimizador():
         # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
         periodos['eslora'] = periodos['proyecto_id'].map(proyectos['eslora'])
         longitudes_confirmados = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
+
+        # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
+        usos_syncrolift_confirmados = {}
+        
+        for p_k in periodos[periodos['proyecto_id'].isin(set_no_optimizar)].index:
+            if periodos.loc[p_k, 'tipo_desc'] == 'VARADA':
+                usos_syncrolift_confirmados[periodos.loc[p_k, 'fecha_incio']] = usos_syncrolift_confirmados.get(periodos.loc[p_k, 'fecha_incio'], 0) + 1
+                usos_syncrolift_confirmados[periodos.loc[p_k, 'fecha_fin']] = usos_syncrolift_confirmados.get(periodos.loc[p_k, 'fecha_fin'], 0) + 1
 
         restricciones = {}
 
