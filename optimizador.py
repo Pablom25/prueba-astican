@@ -1,5 +1,6 @@
 import pandas as pd
 import pulp
+from collections import Counter
 
 class Optimizador():
     def __init__(self, optimizador_params):
@@ -124,13 +125,9 @@ class Optimizador():
         longitudes_confirmados = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
 
         # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
-        usos_syncrolift_confirmados = {}
+        periodos_varada_confirmados = periodos[(periodos['proyecto_id'].isin(set_no_optimizar)) & (periodos['tipo_desc'] == 'VARADA') & (periodos['nombre_area'] != 'SIN UBICACION ASIGNADA')]
+        usos_syncrolift_confirmados = dict(Counter(periodos_varada_confirmados['fecha_inicio'].tolist() + periodos_varada_confirmados['fecha_fin'].tolist()))
         
-        for p_k in periodos[periodos['proyecto_id'].isin(set_no_optimizar)].index:
-            if periodos.loc[p_k, 'tipo_desc'] == 'VARADA':
-                usos_syncrolift_confirmados[periodos.loc[p_k, 'fecha_incio']] = usos_syncrolift_confirmados.get(periodos.loc[p_k, 'fecha_incio'], 0) + 1
-                usos_syncrolift_confirmados[periodos.loc[p_k, 'fecha_fin']] = usos_syncrolift_confirmados.get(periodos.loc[p_k, 'fecha_fin'], 0) + 1
-
         restricciones = {}
 
         # Cada día del periodo debe estar asignado exactamente a un muelle/calle si y[p] = 1 y a ninguno si y[p] = 0
@@ -195,7 +192,7 @@ class Optimizador():
         # Cada día solo puede haber MAX_USES_SYNCROLIFT_PER_DAY usos del syncrolift
         restricciones.update(
             {
-                f"Max_usos_syncrolift_{d}": (pulp.lpSum(variable_set['s'].get((p, d), 0) for p in set_a_optimizar) <= self.MAX_USES_SYNCROLIFT_PER_DAY,
+                f"Max_usos_syncrolift_{d}": (pulp.lpSum(variable_set['s'].get((p, d), 0) for p in set_a_optimizar) + usos_syncrolift_confirmados.get(d, 0) <= self.MAX_USES_SYNCROLIFT_PER_DAY,
                 f"Max_usos_syncrolift_{d}")
                 for d in dias
             }

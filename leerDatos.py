@@ -29,12 +29,12 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
     proyectos.set_index('proyecto_id', inplace=True)
 
     periodos = pd.DataFrame({
-        'tipo_desc': ['FLOTE', 'VARADA', 'VARADA', 'FLOTE', 'FLOTE', 'VARADA', 'FLOTE', 'FLOTE', 'FLOTE'],
-        'fecha_inicio': ['2025-08-08', '2025-08-17', '2025-08-10', '2025-08-17', '2025-08-17', '2025-08-09', '2025-08-24', '2025-08-28', '2025-08-21'],
-        'fecha_fin': ['2025-08-16', '2025-08-23', '2025-08-16', '2025-08-22', '2025-08-25', '2025-08-23', '2025-08-31', '2025-08-31', '2025-08-26'],
-        'nombre_area': ['SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE SUR', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE NORTE', 'SIN UBICACION ASIGNADA'],
-        'proyecto_id': ['PRO1', 'PRO1', 'PRO2', 'PRO2', 'PRO3', 'PRO4', 'PRO4', 'PRO5', 'PRO6'],
-        'periodo_id': [0, 1, 0, 1, 0, 0, 1, 0, 0]})
+        'tipo_desc': ['FLOTE', 'VARADA', 'VARADA', 'FLOTE', 'FLOTE', 'VARADA', 'VARADA', 'FLOTE', 'FLOTE', 'FLOTE'],
+        'fecha_inicio': ['2025-08-08', '2025-08-17', '2025-08-10', '2025-08-17', '2025-08-17', '2025-08-26' ,'2025-08-09', '2025-08-24', '2025-08-28', '2025-08-21'],
+        'fecha_fin': ['2025-08-16', '2025-08-23', '2025-08-16', '2025-08-22', '2025-08-25', '2025-08-30','2025-08-23', '2025-08-31', '2025-08-31', '2025-08-26'],
+        'nombre_area': ['SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE SUR', 'CALLE 1','SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE NORTE', 'SIN UBICACION ASIGNADA'],
+        'proyecto_id': ['PRO1', 'PRO1', 'PRO2', 'PRO2', 'PRO3', 'PRO3', 'PRO4', 'PRO4', 'PRO5', 'PRO6'],
+        'periodo_id': [0, 1, 0, 1, 0, 1, 0, 1, 0, 0]})
     
     periodos['fecha_inicio'] = pd.to_datetime(periodos['fecha_inicio'])
     periodos['fecha_fin'] = pd.to_datetime(periodos['fecha_fin'])
