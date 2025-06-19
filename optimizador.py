@@ -122,12 +122,17 @@ class Optimizador():
 
         # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
         periodos['eslora'] = periodos['proyecto_id'].map(proyectos['eslora'])
-        longitudes_confirmados = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
+        longitudes_suma = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum()
+        max_longitud = ubicaciones['longitud'].to_dict()
+        longitudes_confirmados = {
+            k: min(v, max_longitud.get(k[1], float("inf")))
+            for k, v in longitudes_suma.items()
+        }            
 
         # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
         periodos_varada_confirmados = periodos[(periodos['proyecto_id'].isin(set_no_optimizar)) & (periodos['tipo_desc'] == 'VARADA') & (periodos['nombre_area'] != 'SIN UBICACION ASIGNADA')]
-        usos_syncrolift_confirmados = dict(Counter(periodos_varada_confirmados['fecha_inicio'].tolist() + periodos_varada_confirmados['fecha_fin'].tolist()))
-        
+        usos_syncrolift = Counter(periodos_varada_confirmados['fecha_inicio'].tolist() + periodos_varada_confirmados['fecha_fin'].tolist())
+        usos_syncrolift_confirmados = {k: min(v, self.MAX_USES_SYNCROLIFT_PER_DAY) for k, v in usos_syncrolift.items()}
         restricciones = {}
 
         # Cada día del periodo debe estar asignado exactamente a un muelle/calle si y[p] = 1 y a ninguno si y[p] = 0
@@ -139,17 +144,17 @@ class Optimizador():
                 for d in periodos.loc[p_k, 'dias']
             }
         )
-
+        
         # Los barcos en el mismo muelle no pueden exceder la longitud del muelle/calle
         restricciones.update(
             {
-                f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(variable_set['x'].get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= ubicaciones.loc[loc, 'longitud'], 
-                f"Longitud_Muelle_{d}_{loc}")
+                f"Longitud_{d}_{loc}": (pulp.lpSum(variable_set['x'].get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= ubicaciones.loc[loc, 'longitud'], 
+                f"Longitud_{d}_{loc}")
                 for loc in ubicaciones.index
                 for d in dias
             }
         )
-
+        
         # m es igual a uno para un periodo en un día d si en d-1 está en un muelle/calle diferente, si no es cero
         restricciones.update(
             {
@@ -223,7 +228,6 @@ class Optimizador():
                 prob += c
 
         prob.solve()
-
         return prob
 
     def _imprimir_asignacion(self, prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame):
@@ -255,7 +259,7 @@ class Optimizador():
                         if x[(p,d,loc)].varValue == 1:
                             row += f"{p}\t\t"
                             break
-                    elif periodos.loc[p, 'nombre_area'] == loc and d in periodos.loc[p, 'dias']:
+                    elif (periodos.loc[p, 'nombre_area'] == loc) and (d in periodos.loc[p, 'dias']):
                         row += f"{p}\t\t"
                         break
                 else:
@@ -353,7 +357,7 @@ class Optimizador():
         restricciones = self._definir_restricciones(variable_set, dias, periodos, ubicaciones, proyectos, set_a_optimizar, set_no_optimizar)
         
         prob = self._resolver_problema(objetivo, restricciones)
-        self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones)
+        #self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones)
         resultados = self._crear_dataframe_resultados(variable_set['x'], periodos, set_a_optimizar, fecha_inicial)
 
         return resultados
