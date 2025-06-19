@@ -40,9 +40,9 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
                                                                                 muelles.loc[m, 'ancho'] >= proyectos.loc[row['proyecto_id'], 'manga'])]
                                                                                 if row['tipo_desc'] == 'FLOTE'
                                              else [c for c in calles.index if (proyectos.loc[row['proyecto_id'], 'eslora'] <= calles.loc[c, 'longitud'] and 
-                                                                                proyectos.loc[row['proyecto_id'], 'manga'] <= calles.loc[c, 'ancho'] and
-                                                                                proyectos.loc[row['proyecto_id'], 'eslora'] <= syncrolift_dims['longitud'] and
-                                                                                proyectos.loc[row['proyecto_id'], 'manga'] <= syncrolift_dims['ancho'])], axis=1)
+                                                                                proyectos.loc[row['proyecto_id'], 'manga'] <= calles.loc[c, 'ancho'])] if
+                                                                                (row['tipo_desc'] == 'VARADA' and proyectos.loc[row['proyecto_id'], 'eslora'] <= syncrolift_dims['longitud'] and
+                                                                                proyectos.loc[row['proyecto_id'], 'manga'] <= syncrolift_dims['ancho']) else [], axis=1)
     
     periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)), axis=1)
 
