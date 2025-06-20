@@ -1,0 +1,2387 @@
+{
+  "astican_info": {
+    "calles": [
+      {
+        "ancho": 29.5,
+        "codigo": "010201",
+        "longitud": 205,
+        "nombre": "CALLE N1"
+      },
+      {
+        "ancho": 29.5,
+        "codigo": "010202",
+        "longitud": 205,
+        "nombre": "CALLE N2"
+      },
+      {
+        "ancho": 29.5,
+        "codigo": "010203",
+        "longitud": 165,
+        "nombre": "CALLE N3"
+      },
+      {
+        "ancho": 29.5,
+        "codigo": "010204",
+        "longitud": 165,
+        "nombre": "CALLE N4"
+      },
+      {
+        "ancho": 20,
+        "codigo": "010205",
+        "longitud": 155,
+        "nombre": "CALLE N5"
+      },
+      {
+        "ancho": 29.5,
+        "codigo": "010206",
+        "longitud": 155,
+        "nombre": "CALLE N6"
+      },
+      {
+        "ancho": 29.5,
+        "codigo": "010207",
+        "longitud": 155,
+        "nombre": "CALLE N7"
+      }
+    ],
+    "muelles": [
+      {
+        "codigo": "010211",
+        "longitud": 120,
+        "nombre": "MANIOBRA MUELLE ESCOLLERA"
+      },
+      {
+        "codigo": "010209",
+        "longitud": 405,
+        "nombre": "MANIOBRA MUELLE ESTE"
+      },
+      {
+        "codigo": "010208",
+        "longitud": 170,
+        "nombre": "MANIOBRA MUELLE NORTE"
+      },
+      {
+        "codigo": "010210",
+        "longitud": 140,
+        "nombre": "MANIOBRA MUELLE SUR"
+      },
+      {
+        "codigo": "040401",
+        "longitud": 495,
+        "nombre": "MUELLE AGAETE"
+      },
+      {
+        "codigo": "040301",
+        "longitud": 900,
+        "nombre": "MUELLE ARINAGA"
+      },
+      {
+        "codigo": "020101",
+        "longitud": 190,
+        "nombre": "MUELLE ARS"
+      },
+      {
+        "codigo": "010104",
+        "longitud": 125,
+        "nombre": "MUELLE ESCOLLERA"
+      },
+      {
+        "codigo": "010102",
+        "longitud": 400,
+        "nombre": "MUELLE ESTE"
+      },
+      {
+        "codigo": "040101",
+        "longitud": 4680,
+        "nombre": "MUELLE LAS PALMAS"
+      },
+      {
+        "codigo": "010101",
+        "longitud": 160,
+        "nombre": "MUELLE NORTE"
+      },
+      {
+        "codigo": "010103",
+        "longitud": 140,
+        "nombre": "MUELLE SUR"
+      },
+      {
+        "codigo": "030101",
+        "longitud": 9000,
+        "nombre": "MUELLE TENERIFE"
+      }
+    ],
+    "syncrolift": {
+      "ancho": 29,
+      "codigo": "010221",
+      "longitud": 180,
+      "nombre": "Syncrolift"
+    }
+  },
+  "config": {
+    "ALLOWED_START_DAYS_VARIATION": 0,
+    "MAX_MOVEMENTS_PER_DAY": 3,
+    "MAX_MOVEMENTS_PER_PROJECT": 2,
+    "MAX_USES_SYNCROLIFT_PER_DAY": null
+  },
+  "projects_info": {
+    "PRO-10123000308": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 81,
+        "facturacion": 0,
+        "helice": "DEFAULT",
+        "manga": 13,
+        "nombre": "GUEOTEC",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "PESQUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-11-10",
+          "fecha_inicio": "2025-10-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10123000337": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 68.28,
+        "facturacion": 0,
+        "helice": "FIJO",
+        "manga": 13.11,
+        "nombre": "DAGON",
+        "numero_jefes_buque": 6,
+        "probabilidad_exito": 50,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 7895765.38,
+        "venta_total": 7895765.38
+      },
+      "periodos": [
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-05-26",
+          "fecha_inicio": "2025-05-05",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        },
+        {
+          "codigo_area": "010204",
+          "fecha_fin": "2025-07-21",
+          "fecha_inicio": "2025-05-27",
+          "nombre_area": "CALLE N4",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-09-04",
+          "fecha_inicio": "2025-07-22",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10123000535": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 129.3,
+        "facturacion": 300000,
+        "helice": "NO_APLICA",
+        "manga": 26,
+        "nombre": "DCS AQUILA",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010207",
+          "fecha_fin": "2025-10-11",
+          "fecha_inicio": "2025-09-13",
+          "nombre_area": "CALLE N7",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000180": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 102.7,
+        "facturacion": 300000,
+        "helice": "VARIABLE",
+        "manga": 14.25,
+        "nombre": " NATIONAL GEOGRAPHIC ORION",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PASAJES - FERRYS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-23",
+          "fecha_inicio": "2025-10-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000221": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 238,
+        "facturacion": 15000,
+        "helice": "NO_APLICA",
+        "manga": 42,
+        "nombre": "VALARIS DS-14",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 2,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-02",
+          "fecha_inicio": "2025-05-02",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000236": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 178,
+        "facturacion": 150000,
+        "helice": "NO_APLICA",
+        "manga": 45.9,
+        "nombre": "SAIPEM CONSTELLATION",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "020101",
+          "fecha_fin": "2025-08-05",
+          "fecha_inicio": "2025-01-07",
+          "nombre_area": "MUELLE ARS",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000284": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 238,
+        "facturacion": 193893.45,
+        "helice": "FIJO",
+        "manga": 42,
+        "nombre": "VALARIS DS-12",
+        "numero_jefes_buque": 4,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": 1203446.7,
+        "venta_total": 1397340.15
+      },
+      "periodos": [
+        {
+          "codigo_area": "020101",
+          "fecha_fin": "2025-06-30",
+          "fecha_inicio": "2025-04-04",
+          "nombre_area": "MUELLE ARS",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000287": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 126.9,
+        "facturacion": 300000,
+        "helice": "VARIABLE",
+        "manga": 18.82,
+        "nombre": "MINCHAH",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-12",
+          "fecha_inicio": "2025-10-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000304": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 238,
+        "facturacion": 2000000,
+        "helice": "NO_APLICA",
+        "manga": 42.04,
+        "nombre": "TUNGSTEN EXPLORER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-20",
+          "fecha_inicio": "2025-08-12",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000327": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 162.58,
+        "facturacion": 600000,
+        "helice": "VARIABLE",
+        "manga": 20.62,
+        "nombre": "BENTAYGA",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 90,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-02",
+          "fecha_inicio": "2025-09-06",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000362": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 238,
+        "facturacion": 0,
+        "helice": "NO_APLICA",
+        "manga": 42.04,
+        "nombre": "TUNGSTEN EXPLORER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 100,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": 16000,
+        "venta_total": 16000
+      },
+      "periodos": [
+        {
+          "codigo_area": "020101",
+          "fecha_fin": "2025-10-20",
+          "fecha_inicio": "2025-08-12",
+          "nombre_area": "MUELLE ARS",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000374": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 145,
+        "facturacion": null,
+        "helice": "VARIABLE",
+        "manga": 25.5,
+        "nombre": "SIRIOS CEMENT III",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-22",
+          "fecha_inicio": "2025-09-07",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000422": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 40.37,
+        "facturacion": 150000,
+        "helice": "FIJO",
+        "manga": 7.9,
+        "nombre": "RED GANNET",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-12",
+          "fecha_inicio": "2025-09-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000426": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 227.8,
+        "facturacion": 500000,
+        "helice": "FIJO",
+        "manga": 42.04,
+        "nombre": "STENA ICEMAX",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 20,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "020101",
+          "fecha_fin": "2025-12-19",
+          "fecha_inicio": "2025-09-21",
+          "nombre_area": "MUELLE ARS",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000468": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 119.1,
+        "facturacion": null,
+        "helice": "FIJO",
+        "manga": 16.9,
+        "nombre": "TINGIS",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 50,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010202",
+          "fecha_fin": "2025-07-18",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "CALLE N2",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000486": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 112,
+        "facturacion": 500000,
+        "helice": "VARIABLE",
+        "manga": 18,
+        "nombre": " IVER BRILLIANT",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-12",
+          "fecha_inicio": "2025-06-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10124000491": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 227.8,
+        "facturacion": 1000000,
+        "helice": "FIJO",
+        "manga": 42.04,
+        "nombre": "STENA ICEMAX",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-01",
+          "fecha_inicio": "2025-09-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10124000500": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 101.39,
+        "facturacion": 0,
+        "helice": "DEFAULT",
+        "manga": 19.05,
+        "nombre": "ANUKET PEARL",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-14",
+          "fecha_inicio": "2025-08-02",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000005": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 72.8,
+        "facturacion": 1111196,
+        "helice": "NO_APLICA",
+        "manga": 16,
+        "nombre": "ARTEMIS ODYSSEY",
+        "numero_jefes_buque": 3,
+        "probabilidad_exito": 75,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 0,
+        "venta_total": 1111196
+      },
+      "periodos": [
+        {
+          "codigo_area": "010207",
+          "fecha_fin": "2025-05-22",
+          "fecha_inicio": "2025-04-24",
+          "nombre_area": "CALLE N7",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-05-27",
+          "fecha_inicio": "2025-05-23",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-06-01",
+          "fecha_inicio": "2025-05-28",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000017": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 99.24,
+        "facturacion": 0,
+        "helice": "VARIABLE",
+        "manga": 14,
+        "nombre": "ALIDA",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 50,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 0,
+        "venta_total": 0
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-10",
+          "fecha_inicio": "2025-09-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000018": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 86.25,
+        "facturacion": 250000,
+        "helice": "VARIABLE",
+        "manga": 12.73,
+        "nombre": "DZINTARSAULE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PESQUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010202",
+          "fecha_fin": "2025-07-01",
+          "fecha_inicio": "2025-06-16",
+          "nombre_area": "CALLE N2",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000051": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 108.11,
+        "facturacion": 300000,
+        "helice": "VARIABLE",
+        "manga": 15.6,
+        "nombre": "EXPLORIS ONE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "PASAJES - FERRYS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-17",
+          "fecha_inicio": "2025-09-25",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000066": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 0,
+        "facturacion": 150000,
+        "helice": "",
+        "manga": 0,
+        "nombre": "sin barco confirmado",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 90,
+        "tipo_buque": "",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-13",
+          "fecha_inicio": "2025-09-03",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000069": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 63.4,
+        "facturacion": 0,
+        "helice": "VARIABLE",
+        "manga": 15.8,
+        "nombre": "IEVOLI CORAL",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-12",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000082": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 108.79,
+        "facturacion": 213687.45,
+        "helice": "FIJO",
+        "manga": 67.36,
+        "nombre": "BORGLAND DOLPHIN",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 75,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": 90588.2,
+        "venta_total": 304275.65
+      },
+      "periodos": [
+        {
+          "codigo_area": "010101",
+          "fecha_fin": "2025-07-30",
+          "fecha_inicio": "2025-02-01",
+          "nombre_area": "MUELLE NORTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000086": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 128.46,
+        "facturacion": 500000,
+        "helice": "VARIABLE",
+        "manga": 22,
+        "nombre": "HAM 316",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "DRAGAS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010202",
+          "fecha_fin": "2025-08-10",
+          "fecha_inicio": "2025-07-12",
+          "nombre_area": "CALLE N2",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-08-24",
+          "fecha_inicio": "2025-08-11",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000091": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 93.9,
+        "facturacion": 950000,
+        "helice": "NO_APLICA",
+        "manga": 14.2,
+        "nombre": "BAM TORNADO",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "BUQUES DE GUERRA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-21",
+          "fecha_inicio": "2025-08-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000092": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 177,
+        "facturacion": 400000,
+        "helice": "FIJO",
+        "manga": 28.6,
+        "nombre": "MAPLE TULIP",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-30",
+          "fecha_inicio": "2025-08-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000093": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 76.5,
+        "facturacion": 0,
+        "helice": "VARIABLE",
+        "manga": 18,
+        "nombre": "GH NAVIGATOR",
+        "numero_jefes_buque": 3,
+        "probabilidad_exito": 25,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 2166414.57,
+        "venta_total": 2166414.57
+      },
+      "periodos": [
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-03-30",
+          "fecha_inicio": "2025-03-30",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        },
+        {
+          "codigo_area": "010202",
+          "fecha_fin": "2025-05-23",
+          "fecha_inicio": "2025-03-31",
+          "nombre_area": "CALLE N2",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-05-27",
+          "fecha_inicio": "2025-05-24",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-06-19",
+          "fecha_inicio": "2025-05-28",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        },
+        {
+          "codigo_area": "010205",
+          "fecha_fin": "2025-07-03",
+          "fecha_inicio": "2025-06-20",
+          "nombre_area": "CALLE N5",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000094": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 120.47,
+        "facturacion": 500000,
+        "helice": "VARIABLE",
+        "manga": 19,
+        "nombre": " TUTUNGENI",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "PESQUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-26",
+          "fecha_inicio": "2025-06-15",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000095": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 59,
+        "facturacion": 950000,
+        "helice": "FIJO",
+        "manga": 10,
+        "nombre": "CAPELLA C",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "YATES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-22",
+          "fecha_inicio": "2025-08-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000099": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 139.92,
+        "facturacion": 650000,
+        "helice": "FIJO",
+        "manga": 25,
+        "nombre": "AFRICAN JUNIPER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010201",
+          "fecha_fin": "2025-07-01",
+          "fecha_inicio": "2025-06-14",
+          "nombre_area": "CALLE N1",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000100": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 139.92,
+        "facturacion": 0,
+        "helice": "FIJO",
+        "manga": 25.03,
+        "nombre": "AFRICAN JACARANDA",
+        "numero_jefes_buque": 4,
+        "probabilidad_exito": 100,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": 287042.46,
+        "venta_total": 287042.46
+      },
+      "periodos": [
+        {
+          "codigo_area": "010221",
+          "fecha_fin": "2025-05-26",
+          "fecha_inicio": "2025-05-26",
+          "nombre_area": "ZONA SYNCROLIFT",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010201",
+          "fecha_fin": "2025-06-13",
+          "fecha_inicio": "2025-05-27",
+          "nombre_area": "CALLE N1",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000107": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 97,
+        "facturacion": 0,
+        "helice": "FIJO",
+        "manga": 16,
+        "nombre": "METEOR",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 66760.25,
+        "venta_total": 66760.25
+      },
+      "periodos": [
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-05-31",
+          "fecha_inicio": "2025-05-27",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000108": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 229.38,
+        "facturacion": 50000,
+        "helice": "FIJO",
+        "manga": 38,
+        "nombre": "VALARIS DS-9",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-14",
+          "fecha_inicio": "2025-07-02",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000109": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 102.7,
+        "facturacion": 850000,
+        "helice": "FIJO",
+        "manga": 18,
+        "nombre": "KARPATHOS",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 2,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-13",
+          "fecha_inicio": "2025-06-02",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000113": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 103.1,
+        "facturacion": null,
+        "helice": "VARIABLE",
+        "manga": 16,
+        "nombre": "FISHING KORAL",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 1,
+        "tipo_buque": "PESQUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-23",
+          "fecha_inicio": "2025-10-09",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000117": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 117,
+        "facturacion": 400000,
+        "helice": "FIJO",
+        "manga": 19.2,
+        "nombre": "EPIC BREEZE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-24",
+          "fecha_inicio": "2025-09-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000121": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 88.4,
+        "facturacion": 1271179.96,
+        "helice": "NO_APLICA",
+        "manga": 20.6,
+        "nombre": "PRINCE JAMESON I",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 80,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 0,
+        "venta_total": 1271179.96
+      },
+      "periodos": [
+        {
+          "codigo_area": "010103",
+          "fecha_fin": "2025-06-02",
+          "fecha_inicio": "2025-02-12",
+          "nombre_area": "MUELLE SUR",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000126": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 134.02,
+        "facturacion": 0,
+        "helice": "FIJO",
+        "manga": 20.8,
+        "nombre": "CASSIOPEA",
+        "numero_jefes_buque": 3,
+        "probabilidad_exito": 100,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": 0,
+        "venta_total": 0
+      },
+      "periodos": [
+        {
+          "codigo_area": "010207",
+          "fecha_fin": "2025-07-23",
+          "fecha_inicio": "2025-06-09",
+          "nombre_area": "CALLE N7",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000135": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 73.6,
+        "facturacion": 400000,
+        "helice": "VARIABLE",
+        "manga": 16,
+        "nombre": "TMC PROVIDENCE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-07",
+          "fecha_inicio": "2025-07-27",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000136": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 72.62,
+        "facturacion": 0,
+        "helice": "VARIABLE",
+        "manga": 11.89,
+        "nombre": "EXPLORA",
+        "numero_jefes_buque": 3,
+        "probabilidad_exito": 25,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": 306363.06,
+        "venta_total": 306363.06
+      },
+      "periodos": [
+        {
+          "codigo_area": "010201",
+          "fecha_fin": "2025-05-21",
+          "fecha_inicio": "2025-05-17",
+          "nombre_area": "CALLE N1",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010205",
+          "fecha_fin": "2025-06-06",
+          "fecha_inicio": "2025-05-22",
+          "nombre_area": "CALLE N5",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000143": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 126,
+        "facturacion": 100000,
+        "helice": "NO_APLICA",
+        "manga": 19,
+        "nombre": "WORLD EXPLORER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PASAJES - FERRYS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-20",
+          "fecha_inicio": "2025-10-14",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000145": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 178,
+        "facturacion": 0,
+        "helice": "NO_APLICA",
+        "manga": 45.9,
+        "nombre": "SAIPEM CONSTELLATION",
+        "numero_jefes_buque": 4,
+        "probabilidad_exito": 75,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": 21449,
+        "venta_total": 21449
+      },
+      "periodos": [
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-09-03",
+          "fecha_inicio": "2025-07-15",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000153": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 227.82,
+        "facturacion": 7978,
+        "helice": "FIJO",
+        "manga": 42,
+        "nombre": "PACIFIC MELTEM",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 20,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": 45875,
+        "venta_total": 53853
+      },
+      "periodos": [
+        {
+          "codigo_area": "040101",
+          "fecha_fin": "2025-10-08",
+          "fecha_inicio": "2025-03-15",
+          "nombre_area": "MUELLE LAS PALMAS",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000154": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 129.04,
+        "facturacion": null,
+        "helice": "VARIABLE",
+        "manga": 20.5,
+        "nombre": "IMPALA",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010205",
+          "fecha_fin": "2025-07-20",
+          "fecha_inicio": "2025-06-27",
+          "nombre_area": "CALLE N5",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000155": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 149,
+        "facturacion": 450000,
+        "helice": "VARIABLE",
+        "manga": 22.7,
+        "nombre": "SC PHOENIX",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-14",
+          "fecha_inicio": "2025-09-03",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000156": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 146.8,
+        "facturacion": 550000,
+        "helice": "FIJO",
+        "manga": 24.6,
+        "nombre": "S LINE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010203",
+          "fecha_fin": "2025-08-26",
+          "fecha_inicio": "2025-08-15",
+          "nombre_area": "CALLE N3",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000166": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 77.15,
+        "facturacion": 0,
+        "helice": "FIJO",
+        "manga": 15,
+        "nombre": "ELBE",
+        "numero_jefes_buque": 4,
+        "probabilidad_exito": 10,
+        "tipo_buque": "DRAGAS",
+        "venta_pendiente": 1567221.66,
+        "venta_total": 1567221.66
+      },
+      "periodos": [
+        {
+          "codigo_area": "010206",
+          "fecha_fin": "2025-06-13",
+          "fecha_inicio": "2025-04-30",
+          "nombre_area": "CALLE N6",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-06-23",
+          "fecha_inicio": "2025-06-14",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000170": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 215,
+        "facturacion": 10000000,
+        "helice": "NO_APLICA",
+        "manga": 32,
+        "nombre": "PETROJARL I",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "040101",
+          "fecha_fin": "2025-08-31",
+          "fecha_inicio": "2025-06-01",
+          "nombre_area": "MUELLE LAS PALMAS",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000177": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 154.49,
+        "facturacion": 650000,
+        "helice": "FIJO",
+        "manga": 25,
+        "nombre": " SC MARIGOT",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 2,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-13",
+          "fecha_inicio": "2025-08-02",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000187": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 59.9,
+        "facturacion": 200000,
+        "helice": "FIJO",
+        "manga": 16.5,
+        "nombre": "SUNRISE-G",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 20,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-12",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000188": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 119.3,
+        "facturacion": 400000,
+        "helice": "FIJO",
+        "manga": 18.2,
+        "nombre": "CORIN THIAN",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010204",
+          "fecha_fin": "2025-08-12",
+          "fecha_inicio": "2025-08-01",
+          "nombre_area": "CALLE N4",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000189": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 80.35,
+        "facturacion": 500000,
+        "helice": "VARIABLE",
+        "manga": 19,
+        "nombre": "ILE D`OUESSANT",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-15",
+          "fecha_inicio": "2025-10-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000191": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 99.9,
+        "facturacion": 400000,
+        "helice": "FIJO",
+        "manga": 18,
+        "nombre": "BENROMACH",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-15",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000194": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 121.5,
+        "facturacion": 0,
+        "helice": "VARIABLE",
+        "manga": 28,
+        "nombre": "BREYDEL",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "DRAGAS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-10-15",
+          "fecha_inicio": "2025-10-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000197": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 84,
+        "facturacion": 450000,
+        "helice": "NO_APLICA",
+        "manga": 18.83,
+        "nombre": "TOPAZ CAPTAIN",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-01",
+          "fecha_inicio": "2025-05-21",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000198": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 184,
+        "facturacion": 0,
+        "helice": "NO_APLICA",
+        "manga": 33.54,
+        "nombre": " SHEN DA HAO",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 0,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": 211789,
+        "venta_total": 211789
+      },
+      "periodos": [
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-06-05",
+          "fecha_inicio": "2025-06-03",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000201": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 139.6,
+        "facturacion": 500000,
+        "helice": "VARIABLE",
+        "manga": 22.39,
+        "nombre": "DIANA J",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 100,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010203",
+          "fecha_fin": "2025-07-10",
+          "fecha_inicio": "2025-06-19",
+          "nombre_area": "CALLE N3",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000202": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 50,
+        "facturacion": 50000,
+        "helice": "FIJO",
+        "manga": 10,
+        "nombre": "AURORA-G",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-28",
+          "fecha_inicio": "2025-08-15",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000204": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 120.75,
+        "facturacion": 300000,
+        "helice": "FIJO",
+        "manga": 16.62,
+        "nombre": "MARTA REEFER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010203",
+          "fecha_fin": "2025-07-26",
+          "fecha_inicio": "2025-07-15",
+          "nombre_area": "CALLE N3",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000210": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 81.8,
+        "facturacion": 250000,
+        "helice": "FIJO",
+        "manga": 12,
+        "nombre": "LUCKY LUKE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 10,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010202",
+          "fecha_fin": "2025-07-01",
+          "fecha_inicio": "2025-06-02",
+          "nombre_area": "CALLE N2",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000211": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 76.5,
+        "facturacion": 1000000,
+        "helice": "VARIABLE",
+        "manga": 17.5,
+        "nombre": "GH FREEDOM",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010206",
+          "fecha_fin": "2025-07-21",
+          "fecha_inicio": "2025-06-23",
+          "nombre_area": "CALLE N6",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000215": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 59.25,
+        "facturacion": 400000,
+        "helice": "VARIABLE",
+        "manga": 15.8,
+        "nombre": " BOREAS-G",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010204",
+          "fecha_fin": "2025-07-23",
+          "fecha_inicio": "2025-07-02",
+          "nombre_area": "CALLE N4",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000219": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 169.26,
+        "facturacion": 450000,
+        "helice": "FIJO",
+        "manga": 27.2,
+        "nombre": "PARANA WARRIOR",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-29",
+          "fecha_inicio": "2025-08-18",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000220": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 119.98,
+        "facturacion": 300000,
+        "helice": "FIJO",
+        "manga": 23.05,
+        "nombre": "LADYBOWER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 10,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010201",
+          "fecha_fin": "2025-08-07",
+          "fecha_inicio": "2025-07-25",
+          "nombre_area": "CALLE N1",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000222": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 179.53,
+        "facturacion": 400000,
+        "helice": "FIJO",
+        "manga": 27.4,
+        "nombre": "CHEMROAD QUEEN",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-12",
+          "fecha_inicio": "2025-08-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000225": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 119.9,
+        "facturacion": 250000,
+        "helice": "VARIABLE",
+        "manga": 17.2,
+        "nombre": "MED EMRE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-26",
+          "fecha_inicio": "2025-06-15",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000226": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 90.22,
+        "facturacion": 250000,
+        "helice": "FIJO",
+        "manga": 15.6,
+        "nombre": "ALAKAS I",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 10,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-21",
+          "fecha_inicio": "2025-07-10",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000230": {
+      "info": {
+        "categoria": "Obra",
+        "eslora": 0,
+        "facturacion": 0,
+        "helice": "",
+        "manga": 0,
+        "nombre": "sin barco confirmado",
+        "numero_jefes_buque": 1,
+        "probabilidad_exito": 100,
+        "tipo_buque": "",
+        "venta_pendiente": 9750,
+        "venta_total": 9750
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-12",
+          "fecha_inicio": "2025-06-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000232": {
+      "info": {
+        "categoria": "Oportunidad",
+        "eslora": 159.7,
+        "facturacion": 0,
+        "helice": "VARIABLE",
+        "manga": 24.16,
+        "nombre": "CIUDAD DE IBIZA",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 0,
+        "tipo_buque": "PASAJES - FERRYS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-11-20",
+          "fecha_inicio": "2025-10-20",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000233": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 32.05,
+        "facturacion": 200000,
+        "helice": "FIJO",
+        "manga": 10,
+        "nombre": "LYDIA D",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "REMOLCADORES, SUPPLY VESSELS, INVESTIGA",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010202",
+          "fecha_fin": "2025-06-16",
+          "fecha_inicio": "2025-06-10",
+          "nombre_area": "CALLE N2",
+          "tipo_desc": "VARADA"
+        },
+        {
+          "codigo_area": "010201",
+          "fecha_fin": "2025-06-27",
+          "fecha_inicio": "2025-06-17",
+          "nombre_area": "CALLE N1",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000235": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 79.91,
+        "facturacion": 300000,
+        "helice": "FIJO",
+        "manga": 15.2,
+        "nombre": " PRAIRIE TULIP",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-03",
+          "fecha_inicio": "2025-08-25",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000237": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 145,
+        "facturacion": 500000,
+        "helice": "FIJO",
+        "manga": 24.2,
+        "nombre": "CAIFU CHAO",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-11-02",
+          "fecha_inicio": "2025-10-22",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000238": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 238,
+        "facturacion": 75000,
+        "helice": "NO_APLICA",
+        "manga": 42.04,
+        "nombre": "TUNGSTEN EXPLORER",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 100,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-08-22",
+          "fecha_inicio": "2025-08-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000239": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 171.99,
+        "facturacion": 400000,
+        "helice": "FIJO",
+        "manga": 27.65,
+        "nombre": " CALYPSO",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 2,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-12",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000240": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 70.1,
+        "facturacion": 350000,
+        "helice": "FIJO",
+        "manga": 19.51,
+        "nombre": "SERIFOS",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 25,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-24",
+          "fecha_inicio": "2025-07-13",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000241": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 79.3,
+        "facturacion": 100000,
+        "helice": "FIJO",
+        "manga": 14.04,
+        "nombre": "AMAZONE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 80,
+        "tipo_buque": "DRAGAS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010102",
+          "fecha_fin": "2025-07-08",
+          "fecha_inicio": "2025-06-30",
+          "nombre_area": "MUELLE ESTE",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000242": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 81.86,
+        "facturacion": 500000,
+        "helice": "VARIABLE",
+        "manga": 14,
+        "nombre": "KENFORD",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 75,
+        "tipo_buque": "DRAGAS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-01",
+          "fecha_inicio": "2025-06-20",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000244": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 128,
+        "facturacion": 300000,
+        "helice": "FIJO",
+        "manga": 22.65,
+        "nombre": "BREÑAS CARGO",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 100,
+        "tipo_buque": "PASAJES - FERRYS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "010201",
+          "fecha_fin": "2025-07-17",
+          "fecha_inicio": "2025-07-03",
+          "nombre_area": "CALLE N1",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000245": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 178,
+        "facturacion": 1500000,
+        "helice": "NO_APLICA",
+        "manga": 45.9,
+        "nombre": "SAIPEM CONSTELLATION",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 50,
+        "tipo_buque": "PLATAFORMAS,DIQUES,GABARRAS, VARIOS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-30",
+          "fecha_inicio": "2025-07-15",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000248": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 137.5,
+        "facturacion": 10000,
+        "helice": "VARIABLE",
+        "manga": 21.7,
+        "nombre": "SANTUCA B",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 80,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-18",
+          "fecha_inicio": "2025-06-11",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000250": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 144,
+        "facturacion": 100000,
+        "helice": "VARIABLE",
+        "manga": 23,
+        "nombre": "BG AGNES",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "TANQUES",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-12",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000251": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 128.2,
+        "facturacion": 500000,
+        "helice": "FIJO",
+        "manga": 16.74,
+        "nombre": "ALGEDI STAR",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-14",
+          "fecha_inicio": "2025-07-02",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000253": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 145,
+        "facturacion": 650000,
+        "helice": "VARIABLE",
+        "manga": 22,
+        "nombre": "CARIBBEAN FORCE",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-16",
+          "fecha_inicio": "2025-09-05",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000254": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 118.14,
+        "facturacion": 300000,
+        "helice": "VARIABLE",
+        "manga": 15.9,
+        "nombre": "FRISIAN OCTA",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 5,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-09-26",
+          "fecha_inicio": "2025-09-15",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "VARADA"
+        }
+      ]
+    },
+    "PRO-10125000255": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 134.44,
+        "facturacion": 20000,
+        "helice": "VARIABLE",
+        "manga": 22.5,
+        "nombre": "WILHELM",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 10,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-07-15",
+          "fecha_inicio": "2025-07-01",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    },
+    "PRO-10125000256": {
+      "info": {
+        "categoria": "Presupuesto",
+        "eslora": 189.99,
+        "facturacion": 100000,
+        "helice": "FIJO",
+        "manga": 32.3,
+        "nombre": " LMZ PLUTO",
+        "numero_jefes_buque": 2,
+        "probabilidad_exito": 1,
+        "tipo_buque": "CARGUEROS",
+        "venta_pendiente": null,
+        "venta_total": null
+      },
+      "periodos": [
+        {
+          "codigo_area": "999999",
+          "fecha_fin": "2025-06-16",
+          "fecha_inicio": "2025-06-06",
+          "nombre_area": "SIN UBICACION ASIGNADA",
+          "tipo_desc": "FLOTE"
+        }
+      ]
+    }
+  },
+  "projects_to_optimize": [
+    "PRO-10125000250",
+    "PRO-10125000189",
+    "PRO-10124000287",
+    "PRO-10125000094",
+    "PRO-10125000177",
+    "PRO-10124000422",
+    "PRO-10125000237",
+    "PRO-10125000194",
+    "PRO-10125000069",
+    "PRO-10125000235",
+    "PRO-10125000239",
+    "PRO-10125000187",
+    "PRO-10125000226",
+    "PRO-10125000248",
+    "PRO-10125000143",
+    "PRO-10125000197",
+    "PRO-10125000202",
+    "PRO-10124000327",
+    "PRO-10125000253",
+    "PRO-10125000254",
+    "PRO-10125000242",
+    "PRO-10125000255",
+    "PRO-10125000238",
+    "PRO-10124000491",
+    "PRO-10124000221",
+    "PRO-10125000095",
+    "PRO-10124000180",
+    "PRO-10125000256",
+    "PRO-10125000232",
+    "PRO-10125000222",
+    "PRO-10125000240",
+    "PRO-10125000092",
+    "PRO-10123000308",
+    "PRO-10125000109",
+    "PRO-10124000486",
+    "PRO-10125000066",
+    "PRO-10125000091",
+    "PRO-10125000108",
+    "PRO-10125000135",
+    "PRO-10125000219",
+    "PRO-10124000500",
+    "PRO-10125000051",
+    "PRO-10124000304",
+    "PRO-10125000117",
+    "PRO-10125000155",
+    "PRO-10125000191",
+    "PRO-10125000251",
+    "PRO-10125000225",
+    "PRO-10125000245"
+  ],
+  "query_info": {
+    "from_date": "2025-05-30",
+    "to_date": "2025-10-31"
+  }
+}
