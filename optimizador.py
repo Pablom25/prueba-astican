@@ -146,8 +146,6 @@ class Optimizador():
 
         movimientos_anteriores = movimiento.groupby(periodos['proyecto_id']).sum().clip(upper=self.MAX_MOVEMENTS_PER_PROJECT).to_dict()
 
-        print('movimientos anteriores:\n',movimientos_anteriores)
-
         # RESTRICCIONES
         restricciones = {}
 
