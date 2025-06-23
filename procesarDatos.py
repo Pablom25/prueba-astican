@@ -83,7 +83,7 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
 
     # Cambiar ubicacion periodos a optimizar después de fecha_inicial a "SIN UBICACION ASIGNADA"
     periodos['proyecto_a_optimizar'] = periodos['proyecto_id'].map(proyectos['proyecto_a_optimizar'])
-    periodos.loc[(periodos['proyecto_a_optimizar'] == True) & (periodos['fecha_inicio'] >= 0), 'nombre_area'] = "SIN UBICACION ASIGNADA"
+    periodos.loc[periodos['proyecto_a_optimizar'] & (periodos['fecha_inicio'] >= 0), 'nombre_area'] = "SIN UBICACION ASIGNADA"
     periodos.drop(columns=['proyecto_a_optimizar'], inplace=True)
 
     # Crear una lista de días
