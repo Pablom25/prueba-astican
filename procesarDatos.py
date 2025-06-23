@@ -105,7 +105,7 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     # Crear una lista de días
     dias = list(range(0, periodos['fecha_fin'].max()+1))
 
-    # Columna de dias y localizaciones disponibles
+    # Columna de dias, localizaciones disponibles y duracion de periodos
     periodos['ubicaciones'] = periodos.apply(lambda row: row['nombre_area'] if row['nombre_area'] != 'SIN UBICACION ASIGNADA' 
                                              else [m for m in muelles.index if muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora']]
                                                                                 if row['tipo_desc'] == 'FLOTE'
@@ -115,6 +115,12 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
                                                                                 proyectos.loc[row['proyecto_id'], 'manga'] <= syncrolift_dims['ancho']) else [], axis=1)
     
     periodos['dias'] = periodos.apply(lambda row: list(range(row['fecha_inicio'], row['fecha_fin'] + 1)) if row['fecha_inicio'] >= 0 else [], axis=1)
+
+    periodos["duracion"] = periodos.apply(lambda row: len(row['dias']), axis=1)
+
+    # Facturacion diaria
+    duraciones_proyectos = periodos.groupby('proyecto_id').agg(ultimo_dia = ('fecha_fin', 'max'), primer_dia =  ('fecha_inicio', 'min'))
+    proyectos['facturacion_diaria'] = proyectos['facturacion']/(proyectos.index.map(duraciones_proyectos['ultimo_dia']) - proyectos.index.map(duraciones_proyectos['primer_dia']) + 1)
 
     ubicaciones = pd.concat([muelles, calles])
     
