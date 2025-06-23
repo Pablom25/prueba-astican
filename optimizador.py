@@ -88,7 +88,7 @@ class Optimizador():
         objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
 
-    def _definir_restricciones(self, variable_set: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set, movimientos_anteriores: dict) -> dict:
+    def _definir_restricciones(self, variable_set: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
         """Define las restricciones del problema de optimización.
 
         Parameters
@@ -115,8 +115,6 @@ class Optimizador():
             Set de proyectos a optimizar.
         set_no_optimizar : set
             Set de proyectos que no optimizar.
-        movimientos_anteriores : dict
-            Diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar
         
         Returns
         -------
@@ -138,9 +136,17 @@ class Optimizador():
         usos_syncrolift = Counter(periodos_varada_confirmados['fecha_inicio'].tolist() + periodos_varada_confirmados['fecha_fin'].tolist())
         usos_syncrolift_confirmados = {k: min(v, self.MAX_USES_SYNCROLIFT_PER_DAY) for k, v in usos_syncrolift.items()}
 
-        # Limitar maximo movimientos_anteriores a MAX_MOVEMENTS_PER_PROJECT
-        for k, v in movimientos_anteriores.items():
-            movimientos_anteriores[k] = min(v, self.MAX_MOVEMENTS_PER_PROJECT)
+        # Crear diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
+        periodos_anteriores_optimizar = periodos[(periodos['fecha_inicio']<0) & (periodos['proyecto_id'].isin(set_a_optimizar))].sort_values(['proyecto_id', 'fecha_inicio'])
+        movimiento = (
+            (periodos_anteriores_optimizar['tipo_desc'] == periodos_anteriores_optimizar.groupby('proyecto_id')['tipo_desc'].shift()) &
+            (periodos_anteriores_optimizar['nombre_area'] != periodos_anteriores_optimizar.groupby('proyecto_id')['nombre_area'].shift()) &
+            (periodos_anteriores_optimizar['fecha_inicio'] == periodos_anteriores_optimizar.groupby('proyecto_id')['fecha_fin'].shift() + 1)
+        ).astype(int)
+
+        movimientos_anteriores = movimiento.groupby(periodos['proyecto_id']).sum().clip(upper=self.MAX_MOVEMENTS_PER_PROJECT).to_dict()
+
+        print('movimientos anteriores:\n',movimientos_anteriores)
 
         # RESTRICCIONES
         restricciones = {}
@@ -320,7 +326,7 @@ class Optimizador():
 
         return resultados
 
-    def optimize(self, proyectos: pd.DataFrame, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, dias: list, fecha_inicial: pd.Timestamp, movimientos_anteriores: dict) -> pd.DataFrame:
+    def optimize(self, proyectos: pd.DataFrame, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, dias: list, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
         """Optimiza y crea un DataFrame con los resultados de la asignación de periodos a muelles.
 
         Parameters
@@ -339,8 +345,6 @@ class Optimizador():
             Penalización por cada movimiento de un barco a otro muelle en un periodo.
         MAX_MOVEMENTS_PER_PROJECT : int
             Máximo número de movimientos por proyecto
-        movimientos_anteriores : dict
-            Diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar
         
         Returns
         -------
@@ -354,7 +358,7 @@ class Optimizador():
     
         variable_set = self._definir_variables(periodos, set_a_optimizar)
         objetivo = self._definir_funcion_objetivo(variable_set, proyectos, periodos)
-        restricciones = self._definir_restricciones(variable_set, dias, periodos, ubicaciones, proyectos, set_a_optimizar, set_no_optimizar, movimientos_anteriores)
+        restricciones = self._definir_restricciones(variable_set, dias, periodos, ubicaciones, proyectos, set_a_optimizar, set_no_optimizar)
         
         prob = self._resolver_problema(objetivo, restricciones)
         self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones, proyectos)
