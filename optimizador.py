@@ -83,7 +83,7 @@ class Optimizador():
         objetivo : LpAffineExpression
             Expresión lineal que representa la función objetivo a maximizar.
         """
-        periodos['facturacion_diaria'] = periodos['facturacion_diaria'].clip(lower=self.MIN_FACTURACION_DIARIA)
+        proyectos['facturacion_diaria'] = proyectos['facturacion_diaria'].clip(lower=self.MIN_FACTURACION_DIARIA)
 
         objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
