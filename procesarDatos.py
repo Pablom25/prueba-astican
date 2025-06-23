@@ -2,7 +2,7 @@ import pandas as pd
 import logging
 
 def unificar_periodos_consecutivos(periodos: pd.DataFrame):
-    '''Unificar periodos consecutivos que tienen el mismo nombre area y tipo_desc
+    """Unificar periodos consecutivos que tienen el mismo nombre area y tipo_desc
 
     Parameters
     ----------
@@ -12,7 +12,8 @@ def unificar_periodos_consecutivos(periodos: pd.DataFrame):
     -------
     periodos : pd.DataFrame
         DataFrame con los periodos de los proyectos unificados si consecutivos y de mismo tipo y area.
-    '''
+    """
+
     periodos = periodos.sort_values(['proyecto_id', 'fecha_inicio'])
     cambio = (
         (periodos['tipo_desc'] != periodos.groupby('proyecto_id')['tipo_desc'].shift()) |
@@ -29,6 +30,32 @@ def unificar_periodos_consecutivos(periodos: pd.DataFrame):
     }))
 
     periodos.drop(columns=['grupo'], inplace=True)
+
+    return periodos
+
+def separar_periodos_cruzan(periodos: pd.DataFrame):
+    """ Dividir periodos a optimizar que empiezan antes de fecha_inicial y terminan después
+
+    Parameters
+    ----------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    Returns
+    -------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos separados si empiezan antes de fecha_inicial y terminan después.
+    """
+    cruzan_fecha_inicial = periodos[(periodos['fecha_inicio']<0) & (periodos['fecha_fin']>=0)].copy()
+
+    periodos_anteriores = cruzan_fecha_inicial.copy()
+    periodos_anteriores['fecha_fin'] = -1
+
+    periodos_posteriores = cruzan_fecha_inicial.copy()
+    periodos_posteriores['fecha_inicio'] = 0
+
+    periodos_restantes = periodos[~((periodos['fecha_inicio']<0) & (periodos['fecha_fin']>=0))].copy()
+
+    periodos = pd.concat([periodos_anteriores, periodos_posteriores, periodos_restantes], ignore_index=True)
 
     return periodos
 
@@ -74,25 +101,11 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     # Unificar periodos consecutivos que tienen el mismo nombre area y tipo_desc
     periodos = unificar_periodos_consecutivos(periodos)
     
-    # Facturacion diaria
-    duraciones_proyectos = periodos.groupby('proyecto_id').agg(ultimo_dia = ('fecha_fin', 'max'), primer_dia =  ('fecha_inicio', 'min'))
-    proyectos['facturacion_diaria'] = proyectos['facturacion']/(proyectos.index.map(duraciones_proyectos['ultimo_dia']) - proyectos.index.map(duraciones_proyectos['primer_dia']))
-
     # Dividir periodos a optimizar que empiezan antes de fecha_inicial y terminan después
-    cruzan_fecha_inicial = periodos[(periodos['fecha_inicio']<0) & (periodos['fecha_fin']>=0)].copy()
-
-    periodos_anteriores = cruzan_fecha_inicial.copy()
-    periodos_anteriores['fecha_fin'] = -1
-
-    periodos_posteriores = cruzan_fecha_inicial.copy()
-    periodos_posteriores['fecha_inicio'] = 0
-
-    periodos_restantes = periodos[~((periodos['fecha_inicio']<0) & (periodos['fecha_fin']>=0))].copy()
-
-    periodos = pd.concat([periodos_anteriores, periodos_posteriores, periodos_restantes], ignore_index=True)
-    periodos.sort_values(by=['proyecto_id', 'fecha_inicio'], inplace=True)
+    periodos = separar_periodos_cruzan(periodos)
 
     # Periodos añadir periodo_id y el index
+    periodos.sort_values(by=['proyecto_id', 'fecha_inicio'], inplace=True)
     periodos['periodo_id'] = periodos.groupby('proyecto_id').cumcount()
     periodos['id_proyecto_reparacion'] = periodos['proyecto_id'] + '_' + periodos['periodo_id'].astype(str)
     periodos.set_index('id_proyecto_reparacion', inplace=True)
