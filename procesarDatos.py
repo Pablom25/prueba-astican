@@ -1,6 +1,37 @@
 import pandas as pd
 import logging
 
+def unificar_periodos_consecutivos(periodos: pd.DataFrame):
+    '''Unificar periodos consecutivos que tienen el mismo nombre area y tipo_desc
+
+    Parameters
+    ----------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    Returns
+    -------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos unificados si consecutivos y de mismo tipo y area.
+    '''
+    periodos = periodos.sort_values(['proyecto_id', 'fecha_inicio'])
+    cambio = (
+        (periodos['tipo_desc'] != periodos.groupby('proyecto_id')['tipo_desc'].shift()) |
+        (periodos['nombre_area'] != periodos.groupby('proyecto_id')['nombre_area'].shift()) |
+        (periodos['fecha_inicio'] != periodos.groupby('proyecto_id')['fecha_fin'].shift() + 1)
+    ).astype(int)
+    periodos['grupo'] = cambio.groupby(periodos['proyecto_id']).cumsum()
+    periodos = (periodos.groupby(['proyecto_id', 'grupo'], as_index=False).agg({
+        'fecha_inicio': 'first',
+        'fecha_fin': 'last',
+        'tipo_desc': 'first',
+        'nombre_area': 'first',
+        'proyecto_id': 'first',
+    }))
+
+    periodos.drop(columns=['grupo'], inplace=True)
+
+    return periodos
+
 def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: pd.DataFrame, calles: pd.DataFrame, fecha_inicial: pd.Timestamp, syncrolift_dims: dict, optimizador_params: dict, optimizador_params_new: dict) -> tuple[pd.DataFrame, list]:
     """Preprocesa los datos de proyectos, periodos y muelles para su uso en la optimización.
 
@@ -41,22 +72,7 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     periodos['fecha_fin'] = (periodos['fecha_fin'] - fecha_inicial).dt.days
 
     # Unificar periodos consecutivos que tienen el mismo nombre area y tipo_desc
-    periodos = periodos.sort_values(['proyecto_id', 'fecha_inicio'])
-    cambio = (
-        (periodos['tipo_desc'] != periodos.groupby('proyecto_id')['tipo_desc'].shift()) |
-        (periodos['nombre_area'] != periodos.groupby('proyecto_id')['nombre_area'].shift()) |
-        (periodos['fecha_inicio'] != periodos.groupby('proyecto_id')['fecha_fin'].shift() + 1)
-    ).astype(int)
-    periodos['grupo'] = cambio.groupby(periodos['proyecto_id']).cumsum()
-    periodos = (periodos.groupby(['proyecto_id', 'grupo'], as_index=False).agg({
-        'fecha_inicio': 'first',
-        'fecha_fin': 'last',
-        'tipo_desc': 'first',
-        'nombre_area': 'first',
-        'proyecto_id': 'first',
-    }))
-
-    periodos.drop(columns=['grupo'], inplace=True)
+    periodos = unificar_periodos_consecutivos(periodos)
     
     # Facturacion diaria
     duraciones_proyectos = periodos.groupby('proyecto_id').agg(ultimo_dia = ('fecha_fin', 'max'), primer_dia =  ('fecha_inicio', 'min'))
