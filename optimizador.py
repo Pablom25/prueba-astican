@@ -132,8 +132,11 @@ class Optimizador():
         }            
 
         # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
-        periodos_varada_confirmados = periodos[(periodos['proyecto_id'].isin(set_no_optimizar)) & (periodos['tipo_desc'] == 'VARADA') & (periodos['nombre_area'] != 'SIN UBICACION ASIGNADA')]
-        usos_syncrolift = Counter(periodos_varada_confirmados['fecha_inicio'].tolist() + periodos_varada_confirmados['fecha_fin'].tolist())
+        periodos_no_opt = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].copy().sort_values(['proyecto_id', 'fecha_inicio'])
+        periodos_no_opt['tipo_anterior'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift()
+        periodos_no_opt['tipo_siguiente'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift(-1) 
+        usos_syncrolift = Counter(periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_anterior'] != 'VARADA'), 'fecha_inicio'].tolist() + 
+                       periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_siguiente'] != 'VARADA'), 'fecha_fin'].tolist()) 
         usos_syncrolift_confirmados = {k: min(v, self.MAX_USES_SYNCROLIFT_PER_DAY) for k, v in usos_syncrolift.items()}
 
         # Crear diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
