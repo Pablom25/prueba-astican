@@ -7,6 +7,7 @@ class Optimizador():
         self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT = optimizador_params["MOVED_PROJECTS_PENALTY_PER_MOVEMENT"]
         self.MAX_MOVEMENTS_PER_PROJECT = optimizador_params["MAX_MOVEMENTS_PER_PROJECT"]
         self.MAX_USES_SYNCROLIFT_PER_DAY = optimizador_params["MAX_USES_SYNCROLIFT_PER_DAY"]
+        self.MIN_FACTURACION_DIARIA = optimizador_params["MIN_FACTURACION_DIARIA"]
 
     def _definir_variables(self, periodos: pd.DataFrame, set_a_optimizar: set) -> dict:
         """Define las variables de decisión del problema de optimización.
@@ -82,6 +83,7 @@ class Optimizador():
         objetivo : LpAffineExpression
             Expresión lineal que representa la función objetivo a maximizar.
         """
+        periodos['facturacion_diaria'] = periodos['facturacion_diaria'].clip(lower=self.MIN_FACTURACION_DIARIA)
 
         objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
