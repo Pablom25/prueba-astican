@@ -132,7 +132,7 @@ class Optimizador():
         movimientos_anteriores = crear_diccionario_movimientos_anteriores(self.MAX_MOVEMENTS_PER_PROJECT, periodos, set_a_optimizar)
 
         # Crear lista tuplas (id periodos que acaban en 0 y tienen un periodo del mismo tipo después, nombre_area) y lista ids siguiente periodo
-        posicion_anterior, lista_posteriores = crear_diccionario_periodos_ubicaciones_cruzan(periodos, set_a_optimizar)
+        posicion_anterior = crear_diccionario_periodos_ubicaciones_cruzan(periodos, set_a_optimizar)
 
         # RESTRICCIONES
         restricciones = {}
@@ -181,9 +181,9 @@ class Optimizador():
         # m es igual a 1 para un periodo de lista_posteriores en d=0 si para alguna de sus ubicaciones posibles está asignado y esa no es la misma que en su periodo anterior
         restricciones.update(
             {
-                f"Movimiento_dia_0_{p_1}": (variable_set['m'][(p_1, 0)] == pulp.lpSum(variable_set['x'][(p_1,0,loc)] * posicion_anterior.get((p_1, loc), 1) for loc in periodos.loc[p_1, 'ubicaciones']),
+                f"Movimiento_dia_0_{p_1}": (variable_set['m'][(p_1, 0)] >= (1 - (variable_set['x'][(p_1,0,posicion_anterior[p_1])] if (p_1,0,posicion_anterior[p_1]) in variable_set['x'].keys() else 0)),
                 f"Movimiento_dia_0_{p_1}")
-                for p_1 in lista_posteriores
+                for p_1 in posicion_anterior.keys()
             }
         )
 
@@ -358,7 +358,7 @@ class Optimizador():
         prob = self._resolver_problema(objetivo, restricciones)
         self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones, proyectos)
         resultados = self._crear_dataframe_resultados(variable_set['x'], periodos, set_a_optimizar, fecha_inicial)
-
+        
         return resultados
 
 def crear_diccionario_longitudes_confirmados(periodos: pd.DataFrame, proyectos: pd.DataFrame, set_no_optimizar: pd.DataFrame, ubicaciones: pd.DataFrame) -> dict:
@@ -448,7 +448,7 @@ def crear_diccionario_movimientos_anteriores(MAX_MOVEMENTS_PER_PROJECT: int, per
     return movimientos_anteriores
 
 def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, list]:
-    """Crea un diccionario con valor cero para las tuplas (id periodos que empiezan el día 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior), y una lista de los periodos
+    """Crea un diccionario con valor cero para las tuplas (id periodos que empiezan el día 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior)
 
     Parameters
     ----------
@@ -461,8 +461,6 @@ def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_
     -------
     posicion_anterior : dict
         Diccionario con tuplas (id periodos que empiezan en 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior) como llaves y 0 como valor
-    lista_posteriores : list
-        Lista id's periodos que empiezan en 0 y tienen un periodo del mismo tipo antes
     """    
 
     periodos_optimizar = periodos[periodos['proyecto_id'].isin(set_a_optimizar)].sort_values(['proyecto_id', 'fecha_inicio'])
@@ -473,18 +471,12 @@ def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_
 
     # Selecionar periodos que empiezan en 0 y su anterior es del mismo tipo
     posterior_fecha_inicial = (
-    (periodos_optimizar['fecha_inicio'] == 0) &
-    (periodos_optimizar['tipo_desc'] == periodos_optimizar['tipo_desc_prev']) &
-    (periodos_optimizar['fecha_fin_prev'] == -1)
+        (periodos_optimizar['fecha_inicio'] == 0) &
+        (periodos_optimizar['tipo_desc'] == periodos_optimizar['tipo_desc_prev']) &
+        (periodos_optimizar['fecha_fin_prev'] == -1)
     )
 
     # Diccionario con (periodo que empieza en 0, nombre_area del anterior)
-    posicion_anterior = {
-    (idx, row['nombre_area_prev']): 0
-    for idx, row in periodos_optimizar[posterior_fecha_inicial].iterrows()
-    }
+    posicion_anterior = {p_1: row['nombre_area_prev'] for p_1, row in periodos_optimizar[posterior_fecha_inicial].iterrows()}
 
-    # Lista de periodos que empiezan en 0 y cumplen lo anterior
-    lista_posteriores = list(periodos_optimizar[posterior_fecha_inicial].index)
-
-    return posicion_anterior, lista_posteriores
+    return posicion_anterior
