@@ -119,7 +119,7 @@ def preprocesar_datos(proyectos: pd.DataFrame, periodos: pd.DataFrame, muelles: 
     dias = list(range(0, periodos['fecha_fin'].max()+1))
 
     # Columna de dias, localizaciones disponibles y duracion de periodos
-    periodos['ubicaciones'] = periodos.apply(lambda row: row['nombre_area'] if row['nombre_area'] != 'SIN UBICACION ASIGNADA' 
+    periodos['ubicaciones'] = periodos.apply(lambda row: [row['nombre_area']] if row['nombre_area'] != 'SIN UBICACION ASIGNADA' 
                                              else [m for m in muelles.index if muelles.loc[m, 'longitud'] >= proyectos.loc[row['proyecto_id'], 'eslora']]
                                                                                 if row['tipo_desc'] == 'FLOTE'
                                              else [c for c in calles.index if (proyectos.loc[row['proyecto_id'], 'eslora'] <= calles.loc[c, 'longitud'] and 
