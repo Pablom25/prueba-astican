@@ -181,7 +181,7 @@ class Optimizador():
         # m es igual a 1 para un periodo de lista_posteriores en d=0 si para alguna de sus ubicaciones posibles está asignado y esa no es la misma que en su periodo anterior
         restricciones.update(
             {
-                f"Movimiento_dia_0_{p_1}": (variable_set['m'][(p_1, 0)] >= (1 - (variable_set['x'][(p_1,0,posicion_anterior[p_1])] if (p_1,0,posicion_anterior[p_1]) in variable_set['x'].keys() else 0)),
+                f"Movimiento_dia_0_{p_1}": (variable_set['m'][(p_1, 0)] >= (1 - (variable_set['x'][(p_1,0,posicion_anterior[p_1])] if (p_1,0,posicion_anterior[p_1]) in variable_set['x'].keys() else 0)) - (1 - variable_set['y'][periodos.loc[p_1, 'proyecto_id']]),
                 f"Movimiento_dia_0_{p_1}")
                 for p_1 in posicion_anterior.keys()
             }
