@@ -127,8 +127,8 @@ class Optimizador():
         longitudes_suma = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum()
         max_longitud = ubicaciones['longitud'].to_dict()
         longitudes_confirmados = {
-            k: min(v, max_longitud.get(k[1], float("inf")))
-            for k, v in longitudes_suma.items()
+            (dia, ubi): min(metros_ocupados, max_longitud.get(ubi, float("inf")))
+            for (dia, ubi), metros_ocupados in longitudes_suma.items()
         }            
 
         # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
