@@ -471,7 +471,7 @@ def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_
     periodos_optimizar['nombre_area_prev'] = periodos_optimizar.groupby('proyecto_id')['nombre_area'].shift()
     periodos_optimizar['fecha_fin_prev'] = periodos_optimizar.groupby('proyecto_id')['fecha_fin'].shift()
 
-    # Selecionar periodos que empiezan en 0 y su anteriorn es del mismo tipo
+    # Selecionar periodos que empiezan en 0 y su anterior es del mismo tipo
     posterior_fecha_inicial = (
     (periodos_optimizar['fecha_inicio'] == 0) &
     (periodos_optimizar['tipo_desc'] == periodos_optimizar['tipo_desc_prev']) &
