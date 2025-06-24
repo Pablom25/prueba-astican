@@ -88,6 +88,58 @@ class Optimizador():
         objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
 
+    def _crear_diccionario_usos_syncrolift_confirmados(self, periodos: pd.DataFrame, set_no_optimizar: set) -> dict:
+        """Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
+
+        Parameters
+        ----------
+        periodos : pd.DataFrame
+            DataFrame con los periodos de los proyectos.
+        set_no_optimizar : set
+            Set de proyectos que no optimizar.
+
+        Returns
+        -------
+        usos_syncrolift_confirmados : dict
+            Diccionario de usos del syncrolift por dia de proyectos confirmados.
+        """        
+
+        periodos_no_opt = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].copy().sort_values(['proyecto_id', 'fecha_inicio'])
+        periodos_no_opt['tipo_anterior'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift()
+        periodos_no_opt['tipo_siguiente'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift(-1) 
+        usos_syncrolift = Counter(periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_anterior'] != 'VARADA'), 'fecha_inicio'].tolist() + 
+                       periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_siguiente'] != 'VARADA'), 'fecha_fin'].tolist()) 
+        usos_syncrolift_confirmados = {k: min(v, self.MAX_USES_SYNCROLIFT_PER_DAY) for k, v in usos_syncrolift.items()}
+
+        return usos_syncrolift_confirmados
+
+    def _crear_diccionario_movimientos_anteriores(self, periodos: pd.DataFrame, set_a_optimizar: set) -> dict:
+        """Crear diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
+
+        Parameters
+        ----------
+        periodos : pd.DataFrame
+            DataFrame con los periodos de los proyectos.
+        set_a_optimizar : set
+            Set de proyectos a optimizar.
+
+        Returns
+        -------
+        dict
+            Diccionario de movimientos anteriores a fecha_inicial por proyecto a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
+        """        
+
+        periodos_anteriores_optimizar = periodos[(periodos['fecha_inicio']<0) & (periodos['proyecto_id'].isin(set_a_optimizar))].sort_values(['proyecto_id', 'fecha_inicio'])
+        movimiento = (
+            (periodos_anteriores_optimizar['tipo_desc'] == periodos_anteriores_optimizar.groupby('proyecto_id')['tipo_desc'].shift()) &
+            (periodos_anteriores_optimizar['nombre_area'] != periodos_anteriores_optimizar.groupby('proyecto_id')['nombre_area'].shift()) &
+            (periodos_anteriores_optimizar['fecha_inicio'] == periodos_anteriores_optimizar.groupby('proyecto_id')['fecha_fin'].shift() + 1)
+        ).astype(int)
+
+        movimientos_anteriores = movimiento.groupby(periodos['proyecto_id']).sum().clip(upper=self.MAX_MOVEMENTS_PER_PROJECT).to_dict()
+
+        return movimientos_anteriores
+
     def _definir_restricciones(self, variable_set: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, proyectos: pd.DataFrame, set_a_optimizar: set, set_no_optimizar: set) -> dict:
         """Define las restricciones del problema de optimización.
 
@@ -132,22 +184,10 @@ class Optimizador():
         }            
 
         # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
-        periodos_no_opt = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].copy().sort_values(['proyecto_id', 'fecha_inicio'])
-        periodos_no_opt['tipo_anterior'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift()
-        periodos_no_opt['tipo_siguiente'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift(-1) 
-        usos_syncrolift = Counter(periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_anterior'] != 'VARADA'), 'fecha_inicio'].tolist() + 
-                       periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_siguiente'] != 'VARADA'), 'fecha_fin'].tolist()) 
-        usos_syncrolift_confirmados = {k: min(v, self.MAX_USES_SYNCROLIFT_PER_DAY) for k, v in usos_syncrolift.items()}
+        usos_syncrolift_confirmados = self._crear_diccionario_usos_syncrolift_confirmados(periodos, set_no_optimizar)        
 
         # Crear diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
-        periodos_anteriores_optimizar = periodos[(periodos['fecha_inicio']<0) & (periodos['proyecto_id'].isin(set_a_optimizar))].sort_values(['proyecto_id', 'fecha_inicio'])
-        movimiento = (
-            (periodos_anteriores_optimizar['tipo_desc'] == periodos_anteriores_optimizar.groupby('proyecto_id')['tipo_desc'].shift()) &
-            (periodos_anteriores_optimizar['nombre_area'] != periodos_anteriores_optimizar.groupby('proyecto_id')['nombre_area'].shift()) &
-            (periodos_anteriores_optimizar['fecha_inicio'] == periodos_anteriores_optimizar.groupby('proyecto_id')['fecha_fin'].shift() + 1)
-        ).astype(int)
-
-        movimientos_anteriores = movimiento.groupby(periodos['proyecto_id']).sum().clip(upper=self.MAX_MOVEMENTS_PER_PROJECT).to_dict()
+        movimientos_anteriores = self._crear_diccionario_movimientos_anteriores(periodos, set_a_optimizar)
 
         # RESTRICCIONES
         restricciones = {}
