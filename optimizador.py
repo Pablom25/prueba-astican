@@ -7,6 +7,7 @@ class Optimizador():
         self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT = optimizador_params["MOVED_PROJECTS_PENALTY_PER_MOVEMENT"]
         self.MAX_MOVEMENTS_PER_PROJECT = optimizador_params["MAX_MOVEMENTS_PER_PROJECT"]
         self.MAX_USES_SYNCROLIFT_PER_DAY = optimizador_params["MAX_USES_SYNCROLIFT_PER_DAY"]
+        self.MIN_FACTURACION_DIARIA = optimizador_params["MIN_FACTURACION_DIARIA"]
 
     def _definir_variables(self, periodos: pd.DataFrame, set_a_optimizar: set) -> dict:
         """Define las variables de decisión del problema de optimización.
@@ -82,6 +83,7 @@ class Optimizador():
         objetivo : LpAffineExpression
             Expresión lineal que representa la función objetivo a maximizar.
         """
+        proyectos['facturacion_diaria'] = proyectos['facturacion_diaria'].clip(lower=self.MIN_FACTURACION_DIARIA)
 
         objetivo = pulp.lpSum(variable_set['x'][p_k,d,loc]*proyectos.loc[periodos.loc[p_k,'proyecto_id'], 'facturacion_diaria'] for p_k, d, loc in variable_set['x'].keys()) - self.MOVED_PROJECTS_PENALTY_PER_MOVEMENT*pulp.lpSum(variable_set['m'].values())
         return objetivo
@@ -121,13 +123,18 @@ class Optimizador():
         """
 
         # Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
-        periodos['eslora'] = periodos['proyecto_id'].map(proyectos['eslora'])
-        longitudes_confirmados = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum().to_dict()
+        longitudes_confirmados = crear_diccionario_longitudes_confirmados(periodos, proyectos, set_no_optimizar, ubicaciones)        
 
         # Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
-        periodos_varada_confirmados = periodos[(periodos['proyecto_id'].isin(set_no_optimizar)) & (periodos['tipo_desc'] == 'VARADA') & (periodos['nombre_area'] != 'SIN UBICACION ASIGNADA')]
-        usos_syncrolift_confirmados = dict(Counter(periodos_varada_confirmados['fecha_inicio'].tolist() + periodos_varada_confirmados['fecha_fin'].tolist()))
-        
+        usos_syncrolift_confirmados = crear_diccionario_usos_syncrolift_confirmados(self.MAX_USES_SYNCROLIFT_PER_DAY, periodos, set_no_optimizar)        
+
+        # Crear diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
+        movimientos_anteriores = crear_diccionario_movimientos_anteriores(self.MAX_MOVEMENTS_PER_PROJECT, periodos, set_a_optimizar)
+
+        # Crear lista tuplas (id periodos que acaban en 0 y tienen un periodo del mismo tipo después, nombre_area) y lista ids siguiente periodo
+        posicion_anterior = crear_diccionario_periodos_ubicaciones_cruzan(periodos, set_a_optimizar)
+
+        # RESTRICCIONES
         restricciones = {}
 
         # Cada día del periodo debe estar asignado exactamente a un muelle/calle si y[p] = 1 y a ninguno si y[p] = 0
@@ -139,17 +146,17 @@ class Optimizador():
                 for d in periodos.loc[p_k, 'dias']
             }
         )
-
+        
         # Los barcos en el mismo muelle no pueden exceder la longitud del muelle/calle
         restricciones.update(
             {
-                f"Longitud_Muelle_{d}_{loc}": (pulp.lpSum(variable_set['x'].get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= ubicaciones.loc[loc, 'longitud'], 
-                f"Longitud_Muelle_{d}_{loc}")
+                f"Longitud_{d}_{loc}": (pulp.lpSum(variable_set['x'].get((p, d, loc),0) * proyectos.loc[periodos.loc[p, 'proyecto_id'], 'eslora'] for p in periodos.index) + longitudes_confirmados.get((d,loc),0) <= ubicaciones.loc[loc, 'longitud'], 
+                f"Longitud_{d}_{loc}")
                 for loc in ubicaciones.index
                 for d in dias
             }
         )
-
+        
         # m es igual a uno para un periodo en un día d si en d-1 está en un muelle/calle diferente, si no es cero
         restricciones.update(
             {
@@ -171,10 +178,19 @@ class Optimizador():
             }
         )
 
+        # m es igual a 1 para un periodo de lista_posteriores en d=0 si para alguna de sus ubicaciones posibles está asignado y esa no es la misma que en su periodo anterior
+        restricciones.update(
+            {
+                f"Movimiento_dia_0_{p_1}": (variable_set['m'][(p_1, 0)] >= variable_set['y'][periodos.loc[p_1, 'proyecto_id']] - (variable_set['x'][(p_1,0,posicion_anterior[p_1])] if (p_1,0,posicion_anterior[p_1]) in variable_set['x'].keys() else 0),
+                f"Movimiento_dia_0_{p_1}")
+                for p_1 in posicion_anterior.keys()
+            }
+        )
+
         # Cada proyecto solo puede ser movido MAX_MOVEMENTS_PER_PROJECT en todo el tiempo que se está reprando en el astillero
         restricciones.update(
             {
-                f"Max_n_movimentos_{p}": (pulp.lpSum(variable_set['m'][(p_k, d)] for p_k in periodos[periodos["proyecto_id"] == p].index if len(periodos.loc[p_k, 'ubicaciones']) > 1 for d in periodos.loc[p_k, 'dias']) <= self.MAX_MOVEMENTS_PER_PROJECT,
+                f"Max_n_movimentos_{p}": (pulp.lpSum(variable_set['m'][(p_k, d)] for p_k in periodos[periodos["proyecto_id"] == p].index if len(periodos.loc[p_k, 'ubicaciones']) > 1 for d in periodos.loc[p_k, 'dias']) + movimientos_anteriores.get(p, 0) <= self.MAX_MOVEMENTS_PER_PROJECT,
                 f"Max_n_movimentos_{p}")
                 for p in proyectos[proyectos['proyecto_a_optimizar']].index
             }
@@ -223,44 +239,31 @@ class Optimizador():
                 prob += c
 
         prob.solve()
-
         return prob
+    
+    def _imprimir_asignacion(self, prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame, proyectos: pd.DataFrame):
+        """Crea un DataFrame con las asignaciones por día y ubicación, incluyendo esloras."""
 
-    def _imprimir_asignacion(self, prob: pulp.LpProblem, x: dict, dias: list, periodos: pd.DataFrame, ubicaciones: pd.DataFrame):
-        """Imprime en pantalla el estado y la solucion
-
-        Parameters
-        ----------
-        prob : pulp.LpProblem
-            Objeto LpProblem que representa el problema de optimización.
-        x: dict
-            Diccionario de variables binarias que indican si un periodo está asignado a un muelle en un día específico.
-        dias : list
-            Lista de días desde la fecha inicial hasta la fecha final de los periodos.
-        periodos : pd.DataFrame
-            DataFrame con los periodos de los proyectos.
-        ubicaciones : pd.DataFrame  
-            DataFrame con las dimensiones de los muelles y de las calles.
-        """
-        
         print("\nAsignación de Proyectos a Muelles:\n")
         print("Estado de la solucion:", pulp.LpStatus[prob.status])
-        print("\nDía\t", "\t".join(ubicaciones.index))
 
-        for d in dias:
-            row = f"{d}\t "
-            for loc in ubicaciones.index:
-                for p in periodos.index:
-                    if (p,d,loc) in x.keys():
-                        if x[(p,d,loc)].varValue == 1:
-                            row += f"{p}\t\t"
-                            break
-                    elif periodos.loc[p, 'nombre_area'] == loc and d in periodos.loc[p, 'dias']:
-                        row += f"{p}\t\t"
-                        break
-                else:
-                    row += "N/A\t\t"
-            print(row)
+        # Crear columnas como tuplas: (nombre_area, longitud)
+        columnas = [(loc, ubicaciones.loc[loc, 'longitud']) for loc in ubicaciones.index]
+
+        # Inicializar el DataFrame con listas vacías
+        df_asignacion = pd.DataFrame(index=dias, columns=columnas)
+        for col in df_asignacion.columns:
+            df_asignacion[col] = [[] for _ in range(len(df_asignacion))]
+
+        # Para cada variable x[(p, d, loc)] asignada (valor 1), añadimos (proyecto_id, eslora)
+        for (p_k, d, loc), var in x.items():
+            if var.varValue == 1:
+                eslora = proyectos.loc[periodos.loc[p_k, 'proyecto_id'], 'eslora']
+                col_key = (loc, ubicaciones.loc[loc, 'longitud'])
+                df_asignacion.at[d, col_key].append((p_k, eslora))
+
+        # Mostrar el DataFrame resultante
+        print(df_asignacion.to_string())
 
     def _crear_dataframe_resultados(self, x: dict, periodos: pd.DataFrame, set_a_optimizar: set, fecha_inicial: pd.Timestamp) -> pd.DataFrame:
         """Crea un DataFrame con los resultados de la asignación de periodos a muelles.
@@ -353,7 +356,127 @@ class Optimizador():
         restricciones = self._definir_restricciones(variable_set, dias, periodos, ubicaciones, proyectos, set_a_optimizar, set_no_optimizar)
         
         prob = self._resolver_problema(objetivo, restricciones)
-        self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones)
+        self._imprimir_asignacion(prob, variable_set['x'], dias, periodos, ubicaciones, proyectos)
         resultados = self._crear_dataframe_resultados(variable_set['x'], periodos, set_a_optimizar, fecha_inicial)
-
+        
         return resultados
+
+def crear_diccionario_longitudes_confirmados(periodos: pd.DataFrame, proyectos: pd.DataFrame, set_no_optimizar: pd.DataFrame, ubicaciones: pd.DataFrame) -> dict:
+    """Crear diccionario de longitud total de barcos confirmados por ubicación y por dia
+
+    Parameters
+    ----------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    proyectos : pd.DataFrame
+        DataFrame con las dimensiones de los proyectos.
+    set_no_optimizar : pd.DataFrame
+        Set de proyectos que no optimizar.
+    ubicaciones : pd.DataFrame
+        DataFrame con las dimensiones de los muelles y de las calles.
+
+    Returns
+    -------
+    dict
+        Diccionario de longitud total de barcos confirmados por ubicación y por dia
+    """    
+
+    periodos['eslora'] = periodos['proyecto_id'].map(proyectos['eslora'])
+    longitudes_suma = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].explode('dias').groupby(['dias', 'nombre_area'])['eslora'].sum()
+    max_longitud = ubicaciones['longitud'].to_dict()
+    longitudes_confirmados = {
+        (dia, ubi): min(metros_ocupados, max_longitud.get(ubi, float("inf")))
+        for (dia, ubi), metros_ocupados in longitudes_suma.items()
+    }
+
+    return longitudes_confirmados
+
+def crear_diccionario_usos_syncrolift_confirmados(MAX_USES_SYNCROLIFT_PER_DAY: int, periodos: pd.DataFrame, set_no_optimizar: set) -> dict:
+    """Crear diccionario de numero de usos del syncrolift por dia de barcos confirmados
+
+    Parameters
+    ----------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    set_no_optimizar : set
+        Set de proyectos que no optimizar.
+    MAX_USES_SYNCROLIFT_PER_DAY : int
+        Máximo número de usos del syncrolift por día.
+
+    Returns
+    -------
+    usos_syncrolift_confirmados : dict
+        Diccionario de usos del syncrolift por dia de proyectos confirmados.
+    """        
+
+    periodos_no_opt = periodos[periodos['proyecto_id'].isin(set_no_optimizar)].copy().sort_values(['proyecto_id', 'fecha_inicio'])
+    periodos_no_opt['tipo_anterior'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift()
+    periodos_no_opt['tipo_siguiente'] = periodos_no_opt.groupby('proyecto_id')['tipo_desc'].shift(-1) 
+    usos_syncrolift = Counter(periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_anterior'] != 'VARADA'), 'fecha_inicio'].tolist() + 
+                    periodos_no_opt.loc[(periodos_no_opt['tipo_desc'] == 'VARADA') & (periodos_no_opt['tipo_siguiente'] != 'VARADA'), 'fecha_fin'].tolist()) 
+    usos_syncrolift_confirmados = {k: min(v, MAX_USES_SYNCROLIFT_PER_DAY) for k, v in usos_syncrolift.items()}
+
+    return usos_syncrolift_confirmados
+
+def crear_diccionario_movimientos_anteriores(MAX_MOVEMENTS_PER_PROJECT: int, periodos: pd.DataFrame, set_a_optimizar: set) -> dict:
+    """Crear diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
+
+    Parameters
+    ----------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    set_a_optimizar : set
+        Set de proyectos a optimizar.
+    MAX_MOVEMENTS_PER_PROJECT : int
+        Máximo número de movimientos por proyecto.
+
+    Returns
+    -------
+    dict
+        Diccionario de movimientos anteriores a fecha_inicial por proyecto a optimizar limitado a MAX_MOVEMENTS_PER_PROJECT
+    """        
+
+    periodos_anteriores_optimizar = periodos[(periodos['fecha_inicio']<0) & (periodos['proyecto_id'].isin(set_a_optimizar))].sort_values(['proyecto_id', 'fecha_inicio'])
+    movimiento = (
+        (periodos_anteriores_optimizar['tipo_desc'] == periodos_anteriores_optimizar.groupby('proyecto_id')['tipo_desc'].shift()) &
+        (periodos_anteriores_optimizar['nombre_area'] != periodos_anteriores_optimizar.groupby('proyecto_id')['nombre_area'].shift()) &
+        (periodos_anteriores_optimizar['fecha_inicio'] == periodos_anteriores_optimizar.groupby('proyecto_id')['fecha_fin'].shift() + 1)
+    ).astype(int)
+
+    movimientos_anteriores = movimiento.groupby(periodos['proyecto_id']).sum().clip(upper=MAX_MOVEMENTS_PER_PROJECT).to_dict()
+
+    return movimientos_anteriores
+
+def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, list]:
+    """Crea un diccionario con valor cero para las tuplas (id periodos que empiezan el día 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior)
+
+    Parameters
+    ----------
+    periodos : pd.DataFrame
+        DataFrame con los periodos de los proyectos.
+    set_a_optimizar : set
+        Set de proyectos a optimizar.
+
+    Returns
+    -------
+    posicion_anterior : dict
+        Diccionario con tuplas (id periodos que empiezan en 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior) como llaves y 0 como valor
+    """    
+
+    periodos_optimizar = periodos[periodos['proyecto_id'].isin(set_a_optimizar)].sort_values(['proyecto_id', 'fecha_inicio'])
+    
+    periodos_optimizar['tipo_desc_prev'] = periodos_optimizar.groupby('proyecto_id')['tipo_desc'].shift()
+    periodos_optimizar['nombre_area_prev'] = periodos_optimizar.groupby('proyecto_id')['nombre_area'].shift()
+    periodos_optimizar['fecha_fin_prev'] = periodos_optimizar.groupby('proyecto_id')['fecha_fin'].shift()
+
+    # Selecionar periodos que empiezan en 0 y su anterior es del mismo tipo
+    posterior_fecha_inicial = (
+        (periodos_optimizar['fecha_inicio'] == 0) &
+        (periodos_optimizar['tipo_desc'] == periodos_optimizar['tipo_desc_prev']) &
+        (periodos_optimizar['fecha_fin_prev'] == -1)
+    )
+
+    # Diccionario con (periodo que empieza en 0, nombre_area del anterior)
+    posicion_anterior = {p_1: row['nombre_area_prev'] for p_1, row in periodos_optimizar[posterior_fecha_inicial].iterrows()}
+
+    return posicion_anterior

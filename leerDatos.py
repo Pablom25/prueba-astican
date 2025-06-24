@@ -1,8 +1,14 @@
 import pandas as pd
+import numpy as np
 import json
 
-def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp, int, int, dict]:
+def leer_datos(path: str) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Timestamp, int, int, dict, dict]:
     """Crea DataFrames con los datos de los proyectos, periodos y muelles; y la fecha inicial.
+
+    Parameters
+    ----------
+    path : str
+        path de jsonSendToOptimizer_30052025.json
 
     Returns
     -------
@@ -18,50 +24,68 @@ def leer_datos() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame
         Fecha inicial del primer periodo de los proyectos en formato 'YYYY-MM-DD'. 
     syncrolift_dims : dict
         Diccionario de dimensiones del syncrolift
+    optimizador_params : dict
+        Diccionario con los parámetros para el optimizador
+    movimientos_anteriores : dict
+        Diccionario de movimientos anteriores a fecha_inicial de proyectos a optimizar
     """    
 
-    # Aquí lógica para leer los datos desde un archivo o base de datos
-    proyectos = pd.DataFrame({
-        'eslora': [120, 100, 120, 105, 60, 75],
-        'manga': [18, 15, 18, 16, 12, 12],
-        'proyecto_id': ['PRO1', 'PRO2', 'PRO3', 'PRO4','PRO5', 'PRO6'],
-        'facturacion_diaria': [1000, 800, 1200, 950, 750, 600],
-        'proyecto_a_optimizar': [True, True, False, True, False, True]})
+    with open(path, 'r') as f:
+        json_data = json.load(f)
+
+        # Df calles
+        calles = pd.DataFrame(json_data['astican_info']['calles'])
+        calles.set_index("nombre", inplace=True)
+
+        # Df muelles
+        muelles_data = {
+            'longitud': [],
+            'nombre': []
+        }
+
+        for m in json_data['astican_info']['muelles']:
+            if not m['nombre'].startswith('MANIOBRA'):
+                muelles_data['longitud'].append(m['longitud'])
+                muelles_data['nombre'].append(m['nombre'])
+        
+        muelles = pd.DataFrame(muelles_data)
+        muelles.set_index('nombre', inplace=True)
+
+        # Dict syncrolift
+        syncrolift_dims = json_data['astican_info']['syncrolift']
+
+        # Dict optimizador_params
+        optimizador_params = json_data["config"]
+
+        # Fecha inicial
+        fecha_inicial = pd.to_datetime(json_data["query_info"]["from_date"])
+
+        # List of projects to optimize
+        proyectos_a_optimizar = sorted(json_data["projects_to_optimize"])
+
+        # Projects info
+        rows_info = []
+        for proyecto_id in json_data["projects_info"]:
+            info = json_data["projects_info"][proyecto_id]["info"]
+            info["proyecto_id"] = proyecto_id
+            info["proyecto_a_optimizar"] = proyecto_id in proyectos_a_optimizar
+            rows_info.append(info)
+        proyectos = pd.DataFrame(rows_info).replace(np.nan, None)  # fix facturacion none
+
+        # Repair periods info
+        rows_periodos = []
+        for proyecto_id in json_data["projects_info"]:
+            for periodo in json_data["projects_info"][proyecto_id]["periodos"]:
+                periodo["proyecto_id"] = proyecto_id
+                rows_periodos.append(periodo)
+        periodos = pd.DataFrame(rows_periodos)
     
-    proyectos.set_index('proyecto_id', inplace=True)
+        proyectos.set_index('proyecto_id', inplace=True)
+        periodos['fecha_inicio'] = pd.to_datetime(periodos['fecha_inicio'])
+        periodos['fecha_fin'] = pd.to_datetime(periodos['fecha_fin'])
 
-    periodos = pd.DataFrame({
-        'tipo_desc': ['FLOTE', 'VARADA', 'VARADA', 'FLOTE', 'FLOTE', 'VARADA', 'VARADA', 'FLOTE', 'FLOTE', 'FLOTE'],
-        'fecha_inicio': ['2025-08-08', '2025-08-17', '2025-08-10', '2025-08-17', '2025-08-17', '2025-08-26' ,'2025-08-09', '2025-08-24', '2025-08-28', '2025-08-21'],
-        'fecha_fin': ['2025-08-16', '2025-08-23', '2025-08-16', '2025-08-22', '2025-08-25', '2025-08-30','2025-08-23', '2025-08-31', '2025-08-31', '2025-08-26'],
-        'nombre_area': ['SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE SUR', 'CALLE 1','SIN UBICACION ASIGNADA', 'SIN UBICACION ASIGNADA', 'MUELLE NORTE', 'SIN UBICACION ASIGNADA'],
-        'proyecto_id': ['PRO1', 'PRO1', 'PRO2', 'PRO2', 'PRO3', 'PRO3', 'PRO4', 'PRO4', 'PRO5', 'PRO6'],
-        'periodo_id': [0, 1, 0, 1, 0, 1, 0, 1, 0, 0]})
-    
-    periodos['fecha_inicio'] = pd.to_datetime(periodos['fecha_inicio'])
-    periodos['fecha_fin'] = pd.to_datetime(periodos['fecha_fin'])
-    periodos['id_proyecto_reparacion'] = periodos['proyecto_id'] + '_' + periodos['periodo_id'].astype(str)
-    periodos.set_index('id_proyecto_reparacion', inplace=True)
+    return proyectos, periodos, muelles, calles, fecha_inicial, syncrolift_dims, optimizador_params
 
-    muelles = pd.DataFrame({
-        'longitud': [130, 110],
-        'ancho': [20, 20],
-        'nombre': ['MUELLE SUR', 'MUELLE NORTE']})
-
-    muelles.set_index('nombre', inplace=True)
-
-    calles = pd.DataFrame({
-        'longitud': [200, 160],
-        'ancho': [25, 20],
-        'nombre': ['CALLE 1', 'CALLE 2']})
-    
-    calles.set_index('nombre', inplace=True)
-
-    syncrolift_dims = {'longitud': 180, 'ancho': 22}
-
-    fecha_inicial = periodos['fecha_inicio'].min()
-
-    return proyectos, periodos, muelles, calles, fecha_inicial, syncrolift_dims
 
 def leer_parametros(path: str) -> dict:
     """Lee optimizer.json y devuelve un diccionario con los parámetros
@@ -69,12 +93,12 @@ def leer_parametros(path: str) -> dict:
     Parameters
     ----------
     path : str
-        path de optimizer.json
+        Path de optimizer.json
 
     Returns
     -------
-    dict
-        diccionario con los parámetros para el optimizador
+    optimizador_params : dict
+        Diccionario con los parámetros para el optimizador
     """    
 
     with open(path, 'r') as f:
