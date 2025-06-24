@@ -448,7 +448,7 @@ def crear_diccionario_movimientos_anteriores(MAX_MOVEMENTS_PER_PROJECT: int, per
     return movimientos_anteriores
 
 def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_optimizar: set) -> tuple[dict, list]:
-    """ Crea diccionario con tuplas (id periodos que acaban en 0 y tienen un periodo del mismo tipo después, nombre_area) como llaves y 0 como valor, y lista id's siguiente periodo
+    """Crea un diccionario con valor cero para las tuplas (id periodos que empiezan el día 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior), y una lista de los periodos
 
     Parameters
     ----------
@@ -460,7 +460,7 @@ def crear_diccionario_periodos_ubicaciones_cruzan(periodos: pd.DataFrame, set_a_
     Returns
     -------
     posicion_anterior : dict
-        Diccionario con tuplas (id periodos que acaban en 0 y tienen un periodo del mismo tipo después, nombre_area) como llaves y 0 como valor
+        Diccionario con tuplas (id periodos que empiezan en 0 y tienen un periodo del mismo tipo que acaba el día -1, nombre_area del periodo anterior) como llaves y 0 como valor
     lista_posteriores : list
         Lista id's periodos que empiezan en 0 y tienen un periodo del mismo tipo antes
     """    
